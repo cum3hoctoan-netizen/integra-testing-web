@@ -1,0 +1,45 @@
+# ==============================================================================
+# TỰ ĐỘNG SINH BỞI ANTIGRAVITY - CHUẨN TỐI ƯU CHO REACT / NEXT.JS
+# ==============================================================================
+
+# 1. Thư mục phụ thuộc & File nặng (Bảo vệ tuyệt đối khỏi lỗi 100MB của GitHub)
+node_modules/
+.pnp
+.pnp.js
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# 2. Thư mục Build & Cache của Next.js / React
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# 3. Biến môi trường & Khóa bảo mật bí mật
+.env
+.env*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 4. Vercel & Cloud CLI
+.vercel/
+
+# 5. File hệ thống & Trình soạn thảo
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# 6. Nhật ký lỗi (Logs)
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
