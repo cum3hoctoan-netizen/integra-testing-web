@@ -336,6 +336,28 @@ const SHORTANS_QUESTIONS: QuestionShortAns[] = [
   },
 ];
 
+interface ShuffledOption {
+  originalKey: 'A' | 'B' | 'C' | 'D';
+  text: string;
+}
+
+interface ShuffledQuestionMCQ extends Omit<QuestionMCQ, 'options'> {
+  options: ShuffledOption[];
+}
+
+// Thuật toán xáo trộn mảng Fisher-Yates (Knuth Shuffle)
+function shuffleOptions(options: Option[]): ShuffledOption[] {
+  const result: ShuffledOption[] = options.map((opt) => ({
+    originalKey: opt.key,
+    text: opt.text,
+  }));
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
 export default function KiemTraChuong1Page() {
   // 1. STATE THÔNG TIN HỌC SINH
   const [tenHocSinh, setTenHocSinh] = useState<string>('');
@@ -347,6 +369,24 @@ export default function KiemTraChuong1Page() {
   const [shortAnswers, setShortAnswers] = useState<Record<string, string>>({});
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  // State lưu danh sách câu hỏi trắc nghiệm đã xáo trộn phương án (Fisher-Yates)
+  const [shuffledMCQQuestions, setShuffledMCQQuestions] = useState<ShuffledQuestionMCQ[]>(() =>
+    MCQ_QUESTIONS.map((q) => ({
+      ...q,
+      options: q.options.map((opt) => ({ originalKey: opt.key, text: opt.text })),
+    }))
+  );
+
+  // Thuật toán xáo trộn mảng đáp án (Shuffle Array - Fisher-Yates) bên trong useEffect
+  // Chạy mỗi khi học sinh tải lại trang để 4 phương án tự động đảo vị trí ngẫu nhiên
+  useEffect(() => {
+    const shuffled = MCQ_QUESTIONS.map((q) => ({
+      ...q,
+      options: shuffleOptions(q.options),
+    }));
+    setShuffledMCQQuestions(shuffled);
+  }, []);
 
   // 3. STATE KẾT QUẢ & CHẤM ĐIỂM
   const [diemSo, setDiemSo] = useState<number>(0);
@@ -408,7 +448,7 @@ export default function KiemTraChuong1Page() {
       clearInterval(interval);
       clearTimeout(timeout);
     };
-  }, [isSubmitted]);
+  }, [isSubmitted, shuffledMCQQuestions]);
 
   // Tiến độ làm bài
   const answeredMCQCount = Object.keys(mcqAnswers).length;
@@ -560,6 +600,13 @@ export default function KiemTraChuong1Page() {
       setSoCauDungMCQ(0);
       setSoCauDungShort(0);
       setTimeLeft(45 * 60);
+      // Xáo trộn lượt mới bằng thuật toán Fisher-Yates khi làm lại
+      setShuffledMCQQuestions(
+        MCQ_QUESTIONS.map((q) => ({
+          ...q,
+          options: shuffleOptions(q.options),
+        }))
+      );
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -732,7 +779,7 @@ export default function KiemTraChuong1Page() {
             </span>
           </div>
 
-          {MCQ_QUESTIONS.map((q) => {
+          {shuffledMCQQuestions.map((q) => {
             const studentAnswer = mcqAnswers[q.id];
             const isCorrect = studentAnswer === q.correct;
             return (
@@ -764,11 +811,12 @@ export default function KiemTraChuong1Page() {
                   dangerouslySetInnerHTML={{ __html: q.text }}
                 />
 
-                {/* DANH SÁCH 4 PHƯƠNG ÁN */}
+                {/* DANH SÁCH 4 PHƯƠNG ÁN (ĐÃ XÁO TRỘN FISHER-YATES) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {q.options.map((opt) => {
-                    const isSelected = studentAnswer === opt.key;
-                    const isThisCorrect = opt.key === q.correct;
+                  {q.options.map((opt, optIndex) => {
+                    const displayLabel = (['A', 'B', 'C', 'D'] as const)[optIndex];
+                    const isSelected = studentAnswer === opt.originalKey;
+                    const isThisCorrect = opt.originalKey === q.correct;
 
                     let optionStyle = 'border-slate-200 hover:bg-slate-50 text-slate-800';
 
@@ -789,12 +837,12 @@ export default function KiemTraChuong1Page() {
 
                     return (
                       <button
-                        key={opt.key}
+                        key={opt.originalKey}
                         type="button"
                         disabled={isSubmitted}
                         onClick={() => {
                           if (isSubmitted) return;
-                          setMcqAnswers((prev) => ({ ...prev, [q.id]: opt.key }));
+                          setMcqAnswers((prev) => ({ ...prev, [q.id]: opt.originalKey }));
                         }}
                         className={`text-left px-4 py-3 rounded-lg border text-sm transition flex items-start gap-3 ${optionStyle}`}
                       >
@@ -807,7 +855,7 @@ export default function KiemTraChuong1Page() {
                               : 'bg-slate-200 text-slate-700'
                           }`}
                         >
-                          {opt.key}
+                          {displayLabel}
                         </span>
                         <div
                           className="flex-1 overflow-x-auto"
