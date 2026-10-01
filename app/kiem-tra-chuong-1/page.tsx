@@ -556,16 +556,24 @@ export default function KiemTraChuong1Page() {
 
     // 1. Fetch gửi Webhook Google Apps Script
     try {
-      await fetch(GOOGLE_APP_SCRIPT_URL, {
+      const response = await fetch(GOOGLE_APP_SCRIPT_URL, {
         method: 'POST',
-        mode: 'no-cors',
         headers: {
           'Content-Type': 'text/plain;charset=utf-8',
         },
         body: JSON.stringify(webhookGASPayload),
       });
+
+      const result = await response.json();
+
+      if (result.status === "success") {
+        console.log('Đã ghi dữ liệu thành công:', result);
+        // Bạn có thể giữ nguyên các hàm alert() hoặc setState xử lý sau khi nộp bài ở đây
+      } else {
+        console.error('Lỗi từ bên trong Google Apps Script:', result.message);
+      }
     } catch (err) {
-      console.warn('Lỗi gửi Webhook Google Apps Script:', err);
+      console.error('Lỗi kết nối hoặc đứt mạng:', err);
     }
 
     // 2. Fetch gửi dự phòng sang n8n Webhook
