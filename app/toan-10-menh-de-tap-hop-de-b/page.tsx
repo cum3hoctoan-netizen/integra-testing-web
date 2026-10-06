@@ -316,7 +316,7 @@ const SHORTANS_QUESTIONS_MENHDE_DE_B: QuestionShortAns[] = [
     skill: 'Các phép toán tập hợp trên tập số thực (giao, hợp, hiệu, phần bù)',
     points: 1.5,
     text: 'Cho hai tập hợp $A = \\{x \\in \\mathbb{R} \\mid |x - 2| < 4\\}$ và $B = \\{x \\in \\mathbb{R} \\mid x^2 - 6x + 5 \\le 0\\}$.<br><br><strong>a) (0,75 điểm)</strong> Biểu diễn các tập hợp $A$ và $B$ dưới dạng khoảng, đoạn trong $\\mathbb{R}$.<br><strong>b) (0,75 điểm)</strong> Tìm các tập hợp $A \\cap B$, $A \\cup B$, $A \\setminus B$ và $C_{\\mathbb{R}}A$.',
-    placeholder: 'Ví dụ: A = (-2; 6), B = [1; 5]; A giao B = [1; 5], A hop B = (-2; 6)',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: 'a) A = (-2; 6), B = [1; 5]; b) A ∩ B = [1; 5], A ∪ B = (-2; 6), A \\ B = (-2; 1) ∪ (5; 6), CRA = (-∞; -2] ∪ [6; +∞)',
     validator: (val: string) => {
       const clean = val.toLowerCase().replace(/\s+/g, '');
@@ -334,7 +334,7 @@ const SHORTANS_QUESTIONS_MENHDE_DE_B: QuestionShortAns[] = [
     skill: 'Mô hình hóa bài toán thực tế bằng phương trình và tập hợp',
     points: 1.5,
     text: 'Một trung tâm công nghệ khảo sát $120$ lập trình viên về việc sử dụng hai ngôn ngữ lập trình $X$ và $Y$. Kết quả thu được như sau: Có $70$ lập trình viên sử dụng ngôn ngữ $X$; có $40$ lập trình viên sử dụng ngôn ngữ $Y$; số lập trình viên không sử dụng cả hai ngôn ngữ này gấp hai lần số lập trình viên sử dụng đồng thời cả hai ngôn ngữ $X$ và $Y$.<br><br><strong>a) (1,0 điểm)</strong> Gọi $x$ là số lập trình viên sử dụng đồng thời cả hai ngôn ngữ $X$ và $Y$. Hãy lập phương trình biểu diễn mối quan hệ giữa các dữ kiện và tìm $x$.<br><strong>b) (0,5 điểm)</strong> Tính số lập trình viên chỉ sử dụng duy nhất ngôn ngữ $X$.',
-    placeholder: 'Ví dụ: a) x = 10; b) 60 lập trình viên',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: 'a) 120 - 2x = 110 - x ⇔ x = 10; b) Số LTV chỉ dùng duy nhất X là 60',
     validator: (val: string) => {
       const clean = val.toLowerCase().replace(/\s+/g, '');

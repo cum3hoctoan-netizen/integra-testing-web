@@ -289,7 +289,7 @@ const SHORTANS_QUESTIONS: QuestionShortAns[] = [
     skill: 'Tích vô hướng và chứng minh thẳng hàng trong không gian',
     points: 1.5,
     text: 'Cho hình lập phương $ABCD.A\'B\'C\'D\'$ có cạnh bằng $a$.<br><br><strong>a) (0,75 điểm)</strong> Chứng minh rằng $\\vec{AC\'} \\cdot \\vec{BD} = 0$. Từ đó rút ra kết luận về góc giữa hai đường thẳng $AC\'$ và $BD$.<br><strong>b) (0,75 điểm)</strong> Gọi $G$ là trọng tâm của tam giác $A\'BD$. Biểu diễn vectơ $\\vec{AG}$ theo ba vectơ không đồng phẳng $\\vec{AB}, \\vec{AD}, \\vec{AA\'}$. Từ đó chứng minh ba điểm $A, G, C\'$ thẳng hàng.',
-    placeholder: 'Ví dụ: a) 90 độ; b) AG = 1/3 AC\' (thẳng hàng)',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: 'a) Góc bằng 90°; b) AG = 1/3 AC\' (A, G, C\' thẳng hàng)',
     validator: (val: string) => {
       const clean = val.toLowerCase().replace(/,/g, '.');
@@ -317,7 +317,7 @@ const SHORTANS_QUESTIONS: QuestionShortAns[] = [
     skill: 'Xác định tọa độ đỉnh và tính độ dài trong khối hộp Oxyz',
     points: 1.5,
     text: 'Trong một dự án xây dựng cầu vượt cạn, các kỹ sư thiết lập một hệ trục tọa độ $Oxyz$ (đơn vị trên các trục là mét) để quản lý kết cấu. Một trụ cầu bê tông có dạng khối hộp chữ nhật $OABC.O\'A\'B\'C\'$ với $O(0; 0; 0)$, đỉnh $A$ nằm trên tia $Ox$, đỉnh $C$ nằm trên tia $Oy$ và đỉnh $O\'$ nằm trên tia $Oz$. Kích thước trụ cầu là dài $OA = 6\\text{ m}$, rộng $OC = 4\\text{ m}$, cao $OO\' = 10\\text{ m}$.<br><br><strong>a) (0,75 điểm)</strong> Xác định tọa độ các đỉnh $B\', G$ với $G$ là trung điểm của đoạn thẳng $A\'C$.<br><strong>b) (0,75 điểm)</strong> Để gia cố kết cấu, người ta căng một sợi dây cáp thép nối từ đỉnh $O$ đến trung điểm $M$ của cạnh $B\'C\'$. Tính độ dài sợi dây cáp thép $OM$ (làm tròn đến chữ số thập phân thứ hai).',
-    placeholder: 'Ví dụ: B\'(6;4;10), G(3;2;5), OM = 11.18m',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: 'a) B\'(6; 4; 10), G(3; 2; 5); b) OM ≈ 11,18 m',
     validator: (val: string) => {
       const clean = val.toLowerCase().replace(/,/g, '.');

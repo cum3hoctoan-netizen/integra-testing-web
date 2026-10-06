@@ -370,7 +370,7 @@ const SHORTANS_QUESTIONS_TOAN11: QuestionShortAns[] = [
     skill: 'Biến đổi và tính giá trị biểu thức lượng giác',
     points: 0.5,
     text: 'Tính giá trị của biểu thức $P = \\dfrac{\\sin 4a + \\sin 2a}{\\cos 4a + \\cos 2a + 1}$ khi $\\tan a = 3$.',
-    placeholder: 'Ví dụ: -0.75 hoặc -3/4',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: '-0,75 (hoặc -3/4)',
     validator: (val: string) => {
       const clean = val.trim().replace(/,/g, '.');
@@ -386,7 +386,7 @@ const SHORTANS_QUESTIONS_TOAN11: QuestionShortAns[] = [
     skill: 'Tìm giá trị lớn nhất, nhỏ nhất của hàm số lượng giác',
     points: 0.5,
     text: 'Tìm giá trị lớn nhất $M$ của hàm số $y = \\sin^2 x - 4\\sin x + 5$.',
-    placeholder: 'Ví dụ: 10',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: '10',
     validator: (val: string) => {
       const clean = val.trim();
@@ -402,7 +402,7 @@ const SHORTANS_QUESTIONS_TOAN11: QuestionShortAns[] = [
     skill: 'Đếm số nghiệm của phương trình lượng giác trong khoảng',
     points: 0.5,
     text: 'Phương trình $\\sin\\left(2x - \\dfrac{\\pi}{6}\\right) = \\dfrac{1}{2}$ có bao nhiêu nghiệm thuộc khoảng $(0; \\pi)$?',
-    placeholder: 'Ví dụ: 2',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: '2',
     validator: (val: string) => {
       const clean = val.trim();
@@ -418,7 +418,7 @@ const SHORTANS_QUESTIONS_TOAN11: QuestionShortAns[] = [
     skill: 'Ứng dụng hàm số lượng giác mô hình hóa chu kỳ thủy triều',
     points: 0.5,
     text: 'Mực nước biển tại một trạm quan trắc phụ thuộc thời gian $t$ (giờ, $0 \\le t \\le 24$) trong ngày được mô hình hóa bởi hàm số $h(t) = 3\\cos\\left(\\dfrac{\\pi t}{6}\\right) + 8$ (mét). Trong một ngày (24 giờ), có bao nhiêu thời điểm $t$ mực nước tại trạm đạt đúng $9,5\\text{ mét}$?',
-    placeholder: 'Ví dụ: 4',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: '4',
     validator: (val: string) => {
       const clean = val.trim();
@@ -434,7 +434,7 @@ const SHORTANS_QUESTIONS_TOAN11: QuestionShortAns[] = [
     skill: 'Phương trình lượng giác chứa tham số m',
     points: 0.5,
     text: 'Tìm số các giá trị nguyên của tham số $m \\in [-5; 5]$ để phương trình $\\cos 2x - 2m\\cos x + m + 1 = 0$ có đúng $3$ nghiệm phân biệt thuộc đoạn $[0; 2\\pi]$.',
-    placeholder: 'Ví dụ: 1',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: '1 (ứng với m = -1)',
     validator: (val: string) => {
       const clean = val.trim();
@@ -450,7 +450,7 @@ const SHORTANS_QUESTIONS_TOAN11: QuestionShortAns[] = [
     skill: 'Mô hình hóa chuyển động vòng quay mặt trời (Sun Wheel)',
     points: 0.5,
     text: 'Một chiếc cabin trên vòng quay Sun Wheel có bán kính $R = 30\\text{ m}$, tâm đặt ở độ cao $32\\text{ m}$ so với mặt đất. Vòng quay quay đều với chu kỳ $12\\text{ phút}$. Độ cao $h$ (mét) của cabin so với mặt đất tại thời điểm $t$ (phút) kể từ khi cabin ở vị trí thấp nhất được cho bởi công thức $h(t) = 32 - 30\\cos\\left(\\dfrac{\\pi t}{6}\\right)$. Trong $12\\text{ phút}$ quay đầu tiên ($0 \\le t \\le 12$), tổng thời gian (tính bằng phút) mà cabin ở độ cao từ $47\\text{ mét}$ trở lên là bao nhiêu?',
-    placeholder: 'Ví dụ: 4',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: '4 phút',
     validator: (val: string) => {
       const clean = val.toLowerCase().replace(/phút|phut|m/g, '').trim();

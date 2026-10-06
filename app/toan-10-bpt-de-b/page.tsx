@@ -316,7 +316,7 @@ const SHORTANS_QUESTIONS_BPT_DE_B: QuestionShortAns[] = [
     skill: 'Biểu diễn miền nghiệm và tối ưu hóa biểu thức bậc nhất hai ẩn',
     points: 1.5,
     text: 'Cho hệ bất phương trình bậc nhất hai ẩn: $\\begin{cases} x - y \\le 1 \\\\ 2x + y \\le 8 \\\\ x \\ge 0 \\\\ y \\ge 0 \\end{cases}$<br><br><strong>a) (0,75 điểm)</strong> Biểu diễn miền nghiệm của hệ bất phương trình trên mặt phẳng tọa độ $Oxy$.<br><strong>b) (0,75 điểm)</strong> Tìm tọa độ các đỉnh của miền nghiệm đa giác và tìm giá trị lớn nhất của biểu thức $F(x, y) = 5x + 2y$ trên miền nghiệm đó.',
-    placeholder: 'Ví dụ: Tứ giác OABC: O(0;0), A(1;0), B(3;2), C(0;8); max F = 19',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: 'Tứ giác OABC: O(0;0), A(1;0), B(3;2), C(0;8); max F = 19 tại B(3;2)',
     validator: (val: string) => {
       const clean = val.toLowerCase().replace(/\s+/g, '');
@@ -335,7 +335,7 @@ const SHORTANS_QUESTIONS_BPT_DE_B: QuestionShortAns[] = [
     skill: 'Giải bài toán quy hoạch tuyến tính ứng dụng thực tế sản xuất',
     points: 1.5,
     text: 'Một công ty may mặc dự định may hai loại áo khoác là Áo khoác nhẹ ($A$) và Áo khoác ấm ($B$).<br>- Để may $1$ chiếc áo loại $A$, cần $1\\text{ giờ}$ cắt vải và $2\\text{ giờ}$ may hoàn thiện, mang lại lợi nhuận $150.000\\text{ đồng}$.<br>- Để may $1$ chiếc áo loại $B$, cần $2\\text{ giờ}$ cắt vải và $1\\text{ giờ}$ may hoàn thiện, mang lại lợi nhuận $120.000\\text{ đồng}$.<br>Xưởng có quỹ thời gian tối đa mỗi ngày là $8\\text{ giờ}$ cắt vải và $10\\text{ giờ}$ may hoàn thiện.<br><br><strong>a) (0,75 điểm)</strong> Gọi $x, y$ lần lượt là số chiếc áo loại $A$ và loại $B$ sản xuất trong một ngày ($x, y \\in \\mathbb{R}, x \\ge 0, y \\ge 0$). Lập hệ bất phương trình ràng buộc và biểu diễn miền nghiệm của hệ trên mặt phẳng $Oxy$.<br><strong>b) (0,75 điểm)</strong> Xưởng nên sản xuất bao nhiêu chiếc áo mỗi loại trong một ngày để thu được tổng lợi nhuận lớn nhất và tính giá trị lợi nhuận lớn nhất đó.',
-    placeholder: 'Ví dụ: 4 áo loại A, 2 áo loại B; Lợi nhuận lớn nhất 840.000 đồng',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: '4 áo loại A, 2 áo loại B (x=4, y=2); Lợi nhuận lớn nhất 840.000 đồng',
     validator: (val: string) => {
       const clean = val.toLowerCase().replace(/\s+/g, '');

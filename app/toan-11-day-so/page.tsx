@@ -315,7 +315,7 @@ const SHORTANS_QUESTIONS_DAYSO: QuestionShortAns[] = [
     skill: 'Xác định công thức số hạng tổng quát của dãy số truy hồi nghịch đảo',
     points: 1.5,
     text: 'Cho dãy số $(u_n)$ xác định bởi hệ thức truy hồi: $u_1 = \\dfrac{1}{2}$ và $u_{n+1} = \\dfrac{u_n}{1 + u_n}$ với mọi $n \\ge 1$.<br><br><strong>a) (0,75 điểm)</strong> Tính $4$ số hạng đầu $u_1, u_2, u_3, u_4$ của dãy số.<br><strong>b) (0,75 điểm)</strong> Dự đoán công thức số hạng tổng quát $u_n$ theo $n$ và chứng minh công thức đó.',
-    placeholder: 'Ví dụ: u1=1/2, u2=1/3, u3=1/4, u4=1/5; un = 1/(n+1)',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: 'u1 = 1/2, u2 = 1/3, u3 = 1/4, u4 = 1/5; un = 1/(n+1)',
     validator: (val: string) => {
       const clean = val.toLowerCase().replace(/\s+/g, '');
@@ -333,7 +333,7 @@ const SHORTANS_QUESTIONS_DAYSO: QuestionShortAns[] = [
     skill: 'Chứng minh tính tăng giảm và tính bị chặn của dãy số phân thức',
     points: 1.5,
     text: 'Cho dãy số $(u_n)$ có số hạng tổng quát $u_n = \\dfrac{2n - 1}{n + 1}$.<br><br><strong>a) (0,75 điểm)</strong> Chứng minh rằng dãy số $(u_n)$ là dãy số tăng trên $\\mathbb{N}^*$.<br><strong>b) (0,75 điểm)</strong> Chứng minh rằng dãy số $(u_n)$ là dãy số bị chặn.',
-    placeholder: 'Ví dụ: a) un+1 - un = 3/((n+2)(n+1)) > 0; b) 1/2 <= un < 2',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: 'a) un+1 - un = 3/((n+2)(n+1)) > 0 (dãy số tăng); b) 1/2 ≤ un < 2 (bị chặn)',
     validator: (val: string) => {
       const clean = val.toLowerCase().replace(/\s+/g, '');

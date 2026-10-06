@@ -316,7 +316,7 @@ const SHORTANS_QUESTIONS_TOADO_DE_B: QuestionShortAns[] = [
     skill: 'Chứng minh tam giác vuông cân và tìm tọa độ đỉnh hình vuông',
     points: 1.5,
     text: 'Trong mặt phẳng tọa độ $Oxy$, cho ba điểm $A(-2; 1)$, $B(2; 3)$ và $C(0; -3)$.<br><br><strong>a) (0,75 điểm)</strong> Tính tọa độ các vectơ $\\vec{AB}, \\vec{AC}$. Chứng minh rằng tam giác $ABC$ vuông cân tại $A$.<br><strong>b) (0,75 điểm)</strong> Tìm tọa độ điểm $D$ sao cho tứ giác $ABDC$ là hình vuông.',
-    placeholder: 'Ví dụ: Tam giác ABC vuông cân tại A; D(4; -1)',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: 'Tam giác ABC vuông cân tại A (AB = AC = 2√5, AB ⊥ AC); D(4; -1)',
     validator: (val: string) => {
       const clean = val.toLowerCase().replace(/\s+/g, '');
@@ -334,7 +334,7 @@ const SHORTANS_QUESTIONS_TOADO_DE_B: QuestionShortAns[] = [
     skill: 'Ứng dụng vectơ tính hợp lực hai tàu kéo và tìm điểm trên trục tọa độ tạo góc vuông',
     points: 1.5,
     text: '<strong>a) (0,75 điểm)</strong> Hai tàu kéo cùng kéo một chiếc xà lan từ điểm gốc $O$ theo hai hướng tạo với nhau một góc $60^\\circ$. Lực kéo của tàu thứ nhất có độ lớn $F_1 = 6000\\text{ N}$, lực kéo của tàu thứ hai có độ lớn $F_2 = 4000\\text{ N}$. Tính độ lớn của hợp lực $\\vec{F} = \\vec{F}_1 + \\vec{F}_2$ tác dụng lên xà lan (làm tròn kết quả đến hàng đơn vị của Newton).<br><br><strong>b) (0,75 điểm)</strong> Trong mặt phẳng tọa độ $Oxy$, cho hai điểm $A(2; 5)$ và $B(8; 1)$. Tìm tọa độ điểm $M$ thuộc trục hoành $Ox$ sao cho góc $\\widehat{AMB} = 90^\\circ$.',
-    placeholder: 'Ví dụ: F ≈ 8718 N; M(3; 0) hoặc M(7; 0)',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: 'a) F ≈ 8718 N; b) M(3; 0) hoặc M(7; 0)',
     validator: (val: string) => {
       const clean = val.toLowerCase().replace(/\s+/g, '');

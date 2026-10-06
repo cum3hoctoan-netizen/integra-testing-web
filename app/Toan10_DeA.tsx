@@ -274,7 +274,7 @@ const SHORTANS_QUESTIONS: QuestionShortAns[] = [
     points: '1,5 điểm',
     skill: 'Ứng dụng hệ thức lượng đo khoảng cách thực tế',
     correctHint: 'BC = 77.3, CD = 24.6',
-    placeholder: 'Ví dụ: BC = 77.3, CD = 24.6',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     text: 'Để xác định chiều cao $CD$ của một tháp hải đăng đặt trên đỉnh một ngọn núi đá thẳng đứng bờ biển, người ta chọn hai điểm quan sát $A$ và $B$ thẳng hàng với chân tháp $H$ trên mặt đất phẳng (với $B$ nằm giữa $A$ và $H$, khoảng cách $AB = 40\\text{ m}$). Từ $A$ và $B$, người ta đo được góc nâng nhìn lên đỉnh tháp $C$ lần lượt là $\\widehat{CAD} = 30^\\circ$ và $\\widehat{CBD} = 45^\\circ$.<br><br><strong>a) (0,75 điểm)</strong> Tính độ dài đoạn thẳng $BC$ (khoảng cách từ vị trí $B$ đến đỉnh tháp $C$).<br><strong>b) (0,75 điểm)</strong> Biết chiều cao ngọn núi đá từ chân $H$ đến chân tháp $D$ là $HD = 30\\text{ m}$. Tính chiều cao $CD$ của tháp hải đăng (làm tròn kết quả đến hàng phần mười mét).',
     validator: (val: string) => {
       const clean = val.toLowerCase().replace(/,/g, '.');
@@ -292,7 +292,7 @@ const SHORTANS_QUESTIONS: QuestionShortAns[] = [
     points: '1,5 điểm',
     skill: 'Quy hoạch tuyến tính thực phẩm chức năng',
     correctHint: '3 hộp A, 4 hộp B, lãi 320000',
-    placeholder: 'Ví dụ: 3 hộp A, 4 hộp B, 320.000 đồng',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     text: 'Một công ty dược phẩm dự định sản xuất hai loại thực phẩm chức năng bổ sung vi chất là Loại $A$ và Loại $B$.<ul class="list-disc list-inside my-2 space-y-1 text-sm"><li>Để sản xuất $1\\text{ hộp}$ Loại $A$ cần $2\\text{ g}$ chất $X$ và $1\\text{ g}$ chất $Y$, mang lại lợi nhuận $40.000\\text{ đồng}$.</li><li>Để sản xuất $1\\text{ hộp}$ Loại $B$ cần $1\\text{ g}$ chất $X$ và $3\\text{ g}$ chất $Y$, mang lại lợi nhuận $50.000\\text{ đồng}$.</li></ul>Biết rằng nguồn nguyên liệu dự trữ của công ty hiện có tối đa $10\\text{ g}$ chất $X$ và $15\\text{ g}$ chất $Y$.<br><br><strong>a) (0,75 điểm)</strong> Gọi $x, y$ lần lượt là số hộp thực phẩm chức năng Loại $A$ và Loại $B$ cần sản xuất ($x, y \\in \\mathbb{R}, x \\ge 0, y \\ge 0$). Lập hệ bất phương trình mô tả điều kiện ràng buộc và biểu diễn miền nghiệm của hệ bất phương trình đó trên mặt phẳng tọa độ $Oxy$.<br><strong>b) (0,75 điểm)</strong> Xác định số lượng hộp thực phẩm chức năng mỗi loại công ty nên sản xuất để thu được tổng lợi nhuận lớn nhất và tính giá trị lợi nhuận lớn nhất đó.',
     validator: (val: string) => {
       const clean = val.toLowerCase().replace(/,/g, '.');

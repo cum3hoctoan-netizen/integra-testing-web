@@ -289,7 +289,7 @@ const SHORTANS_QUESTIONS_DE_B: QuestionShortAns[] = [
     skill: 'Tích vô hướng và chứng minh thẳng hàng trong không gian',
     points: 1.5,
     text: 'Cho hình lập phương $ABCD.A\'B\'C\'D\'$ có cạnh bằng $a$.<br><br><strong>a) (0,75 điểm)</strong> Chứng minh rằng $\\vec{A\'C} \\cdot \\vec{B\'D\'} = 0$. Từ đó rút ra kết luận về góc giữa hai đường thẳng $A\'C$ và $B\'D\'.<br><strong>b) (0,75 điểm)</strong> Gọi $H$ là trọng tâm của tam giác $CB\'D\'. Biểu diễn vectơ $\\vec{AH}$ theo ba vectơ không đồng phẳng $\\vec{AB}, \\vec{AD}, \\vec{AA\'}$. Từ đó chứng minh ba điểm $A, H, C\'$ thẳng hàng.',
-    placeholder: 'Ví dụ: a) 90 độ; b) AH = 2/3 AC\' (thẳng hàng)',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: 'a) Góc bằng 90°; b) AH = 2/3 AC\' (A, H, C\' thẳng hàng)',
     validator: (val: string) => {
       const clean = val.toLowerCase().replace(/,/g, '.');
@@ -317,7 +317,7 @@ const SHORTANS_QUESTIONS_DE_B: QuestionShortAns[] = [
     skill: 'Xác định tọa độ đỉnh và tính độ dài trong khối hộp Oxyz',
     points: 1.5,
     text: 'Trong một dự án thiết kế khán đài thi đấu đa năng, các kỹ sư thiết lập hệ trục tọa độ $Oxyz$ (đơn vị tính bằng mét) để quản lý không gian. Khối chân khán đài bằng bê tông có dạng hình hộp chữ nhật $OABC.O\'A\'B\'C\'$ với $O(0; 0; 0)$, đỉnh $A$ nằm trên tia $Ox$, đỉnh $C$ nằm trên tia $Oy$ và đỉnh $O\'$ nằm trên tia $Oz$. Kích thước khối chân khán đài là chiều dài $OA = 8\\text{ m}$, chiều rộng $OC = 6\\text{ m}$, chiều cao $OO\' = 4\\text{ m}$.<br><br><strong>a) (0,75 điểm)</strong> Xác định tọa độ các đỉnh $B\', K$ với $K$ là trung điểm của đoạn thẳng $C\'A$.<br><strong>b) (0,75 điểm)</strong> Để lắp đặt hệ thống đèn chiếu sáng, người ta căng một dây cáp điện nối từ gốc $O$ đến trung điểm $N$ của cạnh $A\'B\'. Tính độ dài dây cáp điện $ON$ (làm tròn đến chữ số thập phân thứ hai).',
-    placeholder: 'Ví dụ: B\'(8;6;4), K(4;3;2), ON = 9.43m',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: 'a) B\'(8; 6; 4), K(4; 3; 2); b) ON ≈ 9,43 m',
     validator: (val: string) => {
       const clean = val.toLowerCase().replace(/,/g, '.');

@@ -316,7 +316,7 @@ const SHORTANS_QUESTIONS_PHEP_DEM_DE_B: QuestionShortAns[] = [
     skill: 'Kỹ thuật buộc khối và chèn khe trong bài toán xếp vị trí',
     points: 1.5,
     text: 'Một nhóm gồm $9$ sinh viên (gồm $5$ sinh viên ngành Toán học, $2$ sinh viên ngành Vật lý và $2$ sinh viên ngành Hóa học) được xếp ngồi vào một dãy gồm $9$ chiếc ghế hàng ngang.<br><br><strong>a) (0,5 điểm)</strong> Tính số cách xếp sao cho $5$ sinh viên ngành Toán học luôn ngồi cạnh nhau.<br><strong>b) (0,5 điểm)</strong> Tính số cách xếp sao cho các sinh viên cùng ngành luôn ngồi cạnh nhau.<br><strong>c) (0,5 điểm)</strong> Tính số cách xếp sao cho không có bất kỳ hai sinh viên ngành Hóa học nào ngồi cạnh nhau.',
-    placeholder: 'Ví dụ: a) 14400; b) 2880; c) 282240',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: 'a) 14400 cách; b) 2880 cách; c) 282240 cách',
     validator: (val: string) => {
       const clean = val.toLowerCase().replace(/\s+/g, '');
@@ -335,7 +335,7 @@ const SHORTANS_QUESTIONS_PHEP_DEM_DE_B: QuestionShortAns[] = [
     skill: 'Phương pháp đếm bằng hai cách (Double Counting) trên đồ thị',
     points: 1.5,
     text: 'Trong một hội nghị khoa học gồm $n$ đại biểu ($n > 25$). Giữa hai đại biểu bất kỳ chỉ có hai trạng thái: quen nhau hoặc không quen nhau. Dữ liệu thống kê cho thấy:<br>1. Mỗi đại biểu quen đúng $24$ đại biểu khác.<br>2. Cứ hai đại biểu quen nhau thì có đúng $15$ đại biểu khác quen với cả hai người đó.<br>3. Cứ hai đại biểu không quen nhau thì có đúng $16$ đại biểu khác quen với cả hai người đó.<br><br>Bằng phương pháp Đếm bằng hai cách (Double Counting), hãy xác định số lượng đại biểu $n$ tham dự hội nghị.',
-    placeholder: 'Ví dụ: n = 37 hoặc 37',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: 'n = 37 đại biểu',
     validator: (val: string) => {
       const clean = val.toLowerCase().replace(/\s+/g, '');

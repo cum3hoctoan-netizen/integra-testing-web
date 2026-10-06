@@ -316,7 +316,7 @@ const SHORTANS_QUESTIONS_VECTO_DE_B: QuestionShortAns[] = [
     skill: 'Chứng minh các hệ thức vectơ về trọng tâm tam giác',
     points: 1.5,
     text: 'Cho tam giác $ABC$ có trọng tâm là điểm $G$.<br><br><strong>a) (0,75 điểm)</strong> Chứng minh rằng $\\vec{GA} + \\vec{GB} + \\vec{GC} = \\vec{0}$.<br><strong>b) (0,75 điểm)</strong> Gọi $M$ là một điểm bất kỳ trên mặt phẳng. Chứng minh rằng $\\vec{MA} + \\vec{MB} + \\vec{MC} = 3\\vec{MG}$.',
-    placeholder: 'Ví dụ: a) GA + GB + GC = 0; b) MA + MB + MC = 3MG',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: 'a) GA + GB + GC = 0; b) MA + MB + MC = 3MG (với mọi điểm M)',
     validator: (val: string) => {
       const clean = val.toLowerCase().replace(/\s+/g, '');
@@ -334,7 +334,7 @@ const SHORTANS_QUESTIONS_VECTO_DE_B: QuestionShortAns[] = [
     skill: 'Ứng dụng vectơ giải bài toán cân bằng lực trong vật lý',
     points: 1.5,
     text: 'Một vật chịu tác dụng đồng thời của ba lực $\\vec{F}_1, \\vec{F}_2, \\vec{F}_3$ cùng đặt tại điểm $O$ và vật ở trạng thái cân bằng. Biết rằng hai lực $\\vec{F}_1$ và $\\vec{F}_2$ có cùng độ lớn bằng $12\\text{ N}$, góc tạo bởi hai lực $\\vec{F}_1$ và $\\vec{F}_2$ bằng $120^\\circ$.<br><br><strong>a) (0,75 điểm)</strong> Tính độ lớn của hợp lực $\\vec{F}_{12} = \\vec{F}_1 + \\vec{F}_2$.<br><strong>b) (0,75 điểm)</strong> Xác định hướng và độ lớn của lực $\\vec{F}_3$.',
-    placeholder: 'Ví dụ: F12 = 12 N; F3 = 12 N, ngược hướng F12',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: 'F12 = 12 N; F3 = 12 N (ngược hướng với F12)',
     validator: (val: string) => {
       const clean = val.toLowerCase().replace(/\s+/g, '');

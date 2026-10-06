@@ -316,7 +316,7 @@ const SHORTANS_QUESTIONS_MENHDE_DE_A: QuestionShortAns[] = [
     skill: 'Các phép toán tập hợp trên tập số thực (giao, hợp, hiệu, phần bù)',
     points: 1.5,
     text: 'Cho hai tập hợp $A = \\{x \\in \\mathbb{R} \\mid |x - 3| \\le 2\\}$ và $B = \\{x \\in \\mathbb{R} \\mid x^2 - 7x + 10 < 0\\}$.<br><br><strong>a) (0,75 điểm)</strong> Biểu diễn các tập hợp $A$ và $B$ dưới dạng khoảng, đoạn trong $\\mathbb{R}$.<br><strong>b) (0,75 điểm)</strong> Tìm các tập hợp $A \\cap B$, $A \\cup B$, $A \\setminus B$ và $C_{\\mathbb{R}}A$.',
-    placeholder: 'Ví dụ: A = [1; 5], B = (2; 5); A giao B = (2; 5), A hop B = [1; 5]',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: 'a) A = [1; 5], B = (2; 5); b) A ∩ B = (2; 5), A ∪ B = [1; 5], A \\ B = [1; 2] ∪ {5}, CRA = (-∞; 1) ∪ (5; +∞)',
     validator: (val: string) => {
       const clean = val.toLowerCase().replace(/\s+/g, '');
@@ -334,7 +334,7 @@ const SHORTANS_QUESTIONS_MENHDE_DE_A: QuestionShortAns[] = [
     skill: 'Mô hình hóa bài toán thực tế bằng phương trình và tập hợp',
     points: 1.5,
     text: 'Một công ty viễn thông khảo sát $150$ hộ gia đình về việc sử dụng hai dịch vụ: Truyền hình số ($T$) và Internet cáp quang ($I$). Kết quả cho thấy có $95$ hộ gia đình sử dụng dịch vụ $T$; có $80$ hộ gia đình sử dụng dịch vụ $I$; số hộ gia đình không sử dụng cả hai dịch vụ bằng một nửa số hộ gia đình sử dụng đồng thời cả hai dịch vụ $T$ và $I$.<br><br><strong>a) (1,0 điểm)</strong> Gọi $x$ là số hộ gia đình sử dụng đồng thời cả hai dịch vụ $T$ và $I$ ($x \\in \\mathbb{N}^*$). Lập phương trình biểu diễn mối quan hệ giữa các dữ kiện và tìm $x$.<br><strong>b) (0,5 điểm)</strong> Tính số hộ gia đình chỉ sử dụng duy nhất dịch vụ Internet cáp quang $I$.',
-    placeholder: 'Ví dụ: a) x = 50; b) 30 hộ gia đình',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
     correctDisplay: 'a) 150 - 0.5x = 175 - x ⇔ x = 50; b) Số hộ chỉ dùng duy nhất I là 30',
     validator: (val: string) => {
       const clean = val.toLowerCase().replace(/\s+/g, '');
