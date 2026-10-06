@@ -440,6 +440,10 @@ export default function Toan11DaySoPage() {
     };
   }, [isSubmitted, shuffledMCQQuestions]);
 
+  useEffect(() => {
+    document.title = 'ĐỀ KIỂM TRA MÔN TOÁN LỚP 11 - 45 PHÚT | CHỦ ĐỀ: KHÁI NIỆM DÃY SỐ - TÍNH TĂNG GIẢM - TÍNH BỊ CHẶN';
+  }, []);
+
   // Tiến độ làm bài
   const answeredMCQCount = Object.keys(mcqAnswers).length;
   const answeredShortCount = Object.values(shortAnswers).filter((v) => v.trim().length > 0).length;
@@ -596,6 +600,7 @@ export default function Toan11DaySoPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 py-8 px-4 sm:px-6 lg:px-8 font-sans">
+      <title>ĐỀ KIỂM TRA MÔN TOÁN LỚP 11 - 45 PHÚT | CHỦ ĐỀ: KHÁI NIỆM DÃY SỐ - TÍNH TĂNG GIẢM - TÍNH BỊ CHẶN</title>
       <div className="max-w-4xl mx-auto space-y-6">
 
         {/* HEADER BÀI THI */}

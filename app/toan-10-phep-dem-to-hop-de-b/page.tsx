@@ -440,6 +440,10 @@ export default function Toan10PhepDemToHopDeBPage() {
     };
   }, [isSubmitted, shuffledMCQQuestions]);
 
+  useEffect(() => {
+    document.title = 'ĐỀ KIỂM TRA ĐỊNH KỲ MÔN TOÁN HỌC (45 PHÚT) - ĐỀ B | PHÉP ĐẾM VÀ ĐẠI SỐ TỔ HỢP';
+  }, []);
+
   // Tiến độ làm bài
   const answeredMCQCount = Object.keys(mcqAnswers).length;
   const answeredShortCount = Object.values(shortAnswers).filter((v) => v.trim().length > 0).length;
@@ -596,6 +600,7 @@ export default function Toan10PhepDemToHopDeBPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 py-8 px-4 sm:px-6 lg:px-8 font-sans">
+      <title>ĐỀ KIỂM TRA ĐỊNH KỲ MÔN TOÁN HỌC (45 PHÚT) - ĐỀ B | PHÉP ĐẾM VÀ ĐẠI SỐ TỔ HỢP</title>
       <div className="max-w-4xl mx-auto space-y-6">
 
         {/* HEADER BÀI THI */}

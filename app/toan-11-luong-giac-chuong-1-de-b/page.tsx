@@ -2,6 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 
+// --- THÔNG TIN TIÊU ĐỀ TRÍCH XUẤT CHÍNH XÁC TỪ MÃ NGUỒN LATEX ---
+const EXAM_TITLE = 'ĐỀ KIỂM TRA MÔN TOÁN LỚP 11 - 45 PHÚT [ĐỀ B]';
+const EXAM_SUBTITLE = 'CHƯƠNG I: HÀM SỐ LƯỢNG GIÁC VÀ PHƯƠNG TRÌNH LƯỢNG GIÁC';
+const EXAM_TIME_NOTE = '(Thời gian làm bài: 45 phút • Tỷ lệ: 90% Trắc nghiệm 30 câu + 10% Tự luận 1 câu)';
+
 // --- CẤU HÌNH WEBHOOK URL ---
 const GOOGLE_APP_SCRIPT_URL =
   'https://script.google.com/macros/s/AKfycbwFjkENCxOPVJcFo8OmXuLad5kcMEC9_Uu48hF045AO0yC8-TnHivEI0ohfUHZkJQlN/exec';
@@ -666,6 +671,11 @@ export default function Toan11LuongGiacChuong1DeBPage() {
     setShuffledMCQQuestions(shuffled);
   }, []);
 
+  // CẬP NHẬT TIÊU ĐỀ TRÌNH DUYỆT (DOCUMENT.TITLE) ĐỘNG TỪ MÃ NGUỒN LATEX
+  useEffect(() => {
+    document.title = `${EXAM_TITLE} - ${EXAM_SUBTITLE}`;
+  }, []);
+
   // 3. STATE KẾT QUẢ & ĐIỂM SỐ
   const [diemSo, setDiemSo] = useState<number>(0);
   const [soCauDungMCQ, setSoCauDungMCQ] = useState<number>(0);
@@ -797,7 +807,7 @@ export default function Toan11LuongGiacChuong1DeBPage() {
       ho_ten: ten,
       ma_so: ma,
       lop: lop,
-      de_thi: 'ĐỀ KIỂM TRA MÔN TOÁN LỚP 11 - 45 PHÚT [ĐỀ B] - CHƯƠNG I: HÀM SỐ LƯỢNG GIÁC VÀ PHƯƠNG TRÌNH LƯỢNG GIÁC',
+      de_thi: `${EXAM_TITLE} - ${EXAM_SUBTITLE}`,
       diem_so: finalScore,
       so_cau_dung_mcq: `${correctMCQ}/${MCQ_QUESTIONS_LUONG_GIAC_CH1_DE_B.length}`,
       so_cau_dung_short: `${correctShort}/${SHORTANS_QUESTIONS_LUONG_GIAC_CH1_DE_B.length}`,
@@ -876,15 +886,18 @@ export default function Toan11LuongGiacChuong1DeBPage() {
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 antialiased font-sans pb-16">
+      {/* THẺ TITLE ĐỘNG TRÍCH XUẤT 100% TỪ LATEX */}
+      <title>{`${EXAM_TITLE} - ${EXAM_SUBTITLE}`}</title>
+
       {/* HEADER CỐ ĐỊNH PHÍA TRÊN */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm transition-all">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div>
             <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-              Toán 11 • KNTT & GDPT 2018 [ĐỀ B]
+              Toán 11 • KNTT & GDPT 2018
             </span>
             <h1 className="text-sm sm:text-base font-bold text-slate-900 truncate max-w-[200px] sm:max-w-md mt-0.5">
-              Hàm Số Lượng Giác & PT Lượng Giác [ĐỀ B]
+              {EXAM_TITLE}
             </h1>
           </div>
 
@@ -948,13 +961,13 @@ export default function Toan11LuongGiacChuong1DeBPage() {
               BỘ GIÁO DỤC VÀ ĐÀO TẠO — GDPT 2018
             </span>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 pt-1">
-              ĐỀ KIỂM TRA MÔN TOÁN LỚP 11 - 45 PHÚT [ĐỀ B]
+              {EXAM_TITLE}
             </h2>
             <p className="text-sm font-bold text-amber-900">
-              CHƯƠNG I: HÀM SỐ LƯỢNG GIÁC VÀ PHƯƠNG TRÌNH LƯỢNG GIÁC
+              {EXAM_SUBTITLE}
             </p>
             <p className="text-xs sm:text-sm text-slate-500 italic max-w-xl mx-auto">
-              (Thời gian làm bài: 45 phút • Tỷ lệ: 90% Trắc nghiệm 30 câu + 10% Tự luận 1 câu)
+              {EXAM_TIME_NOTE}
             </p>
           </div>
 
@@ -1007,7 +1020,7 @@ export default function Toan11LuongGiacChuong1DeBPage() {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pb-6 border-b border-amber-800/40">
               <div className="text-center sm:text-left">
                 <span className="text-xs uppercase tracking-widest text-amber-300 font-bold">
-                  BÁO CÁO KẾT QUẢ ĐÁNH GIÁ ĐỊNH KỲ [ĐỀ B]
+                  BÁO CÁO KẾT QUẢ ĐÁNH GIÁ: {EXAM_TITLE}
                 </span>
                 <h3 className="text-2xl sm:text-3xl font-black mt-1">{tenHocSinh || 'Học sinh ẩn danh'}</h3>
                 <p className="text-sm text-slate-300 mt-0.5">
@@ -1338,7 +1351,7 @@ export default function Toan11LuongGiacChuong1DeBPage() {
                       d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  Nộp bài thi [ĐỀ B] ({totalAnswered}/{totalQuestions} câu)
+                  Nộp bài thi ({totalAnswered}/{totalQuestions} câu)
                 </>
               )}
             </button>

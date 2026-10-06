@@ -2,8 +2,11 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'ĐỀ KIỂM TRA ĐÁNH GIÁ ĐỊNH KỲ MÔN TOÁN LỚP 10 -- ĐỀ A',
-  description: 'Giao diện làm bài thi trắc nghiệm Toán 10 kết nối Webhook',
+  title: {
+    template: '%s | Hệ thống Kiểm tra Trực tuyến Integra',
+    default: 'Hệ thống Kiểm tra Trực tuyến Toán THPT - Integra',
+  },
+  description: 'Hệ thống làm bài kiểm tra trực tuyến môn Toán chuẩn chương trình GDPT 2018',
 };
 
 export default function RootLayout({

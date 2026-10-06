@@ -2,6 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 
+// --- THÔNG TIN TIÊU ĐỀ TRÍCH XUẤT CHÍNH XÁC TỪ MÃ NGUỒN LATEX ---
+const EXAM_TITLE = 'ĐỀ KIỂM TRA MÔN TOÁN LỚP 11 - 45 PHÚT';
+const EXAM_SUBTITLE = 'CHƯƠNG I: HÀM SỐ LƯỢNG GIÁC VÀ PHƯƠNG TRÌNH LƯỢNG GIÁC';
+const EXAM_TIME_NOTE = '(Thời gian làm bài: 45 phút - Tỷ lệ: 90% Trắc nghiệm + 10% Tự luận)';
+
 // --- CẤU HÌNH WEBHOOK URL ---
 const GOOGLE_APP_SCRIPT_URL =
   'https://script.google.com/macros/s/AKfycbwFjkENCxOPVJcFo8OmXuLad5kcMEC9_Uu48hF045AO0yC8-TnHivEI0ohfUHZkJQlN/exec';
@@ -640,6 +645,11 @@ export default function Toan11LuongGiacChuong1Page() {
     setShuffledMCQQuestions(shuffled);
   }, []);
 
+  // CẬP NHẬT TIÊU ĐỀ TRÌNH DUYỆT (DOCUMENT.TITLE) ĐỘNG TỪ MÃ NGUỒN LATEX
+  useEffect(() => {
+    document.title = `${EXAM_TITLE} - ${EXAM_SUBTITLE}`;
+  }, []);
+
   // 3. STATE KẾT QUẢ & CHẤM ĐIỂM
   const [diemSo, setDiemSo] = useState<number>(0);
   const [mangCauSai, setMangCauSai] = useState<string[]>([]);
@@ -858,19 +868,25 @@ export default function Toan11LuongGiacChuong1Page() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 py-8 px-4 sm:px-6 lg:px-8 font-sans">
+      {/* THẺ TITLE ĐỘNG TRÍCH XUẤT 100% TỪ LATEX */}
+      <title>{`${EXAM_TITLE} - ${EXAM_SUBTITLE}`}</title>
+
       <div className="max-w-4xl mx-auto space-y-6">
 
         {/* HEADER BÀI THI */}
         <header className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
           <div className="border-b border-slate-100 pb-5 text-center">
             <span className="inline-block px-3 py-1 bg-amber-50 text-amber-800 text-xs font-semibold uppercase tracking-wider rounded-full mb-2">
-              Hệ thống khảo sát trực tuyến Integra &bull; Toán 11
+              BỘ GIÁO DỤC VÀ ĐÀO TẠO &bull; GDPT 2018
             </span>
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900 leading-tight">
-              ĐỀ KIỂM TRA MÔN TOÁN LỚP 11 - 45 PHÚT
+              {EXAM_TITLE}
             </h1>
-            <p className="text-sm sm:text-base text-slate-600 font-medium mt-1">
-              CHƯƠNG I: HÀM SỐ LƯỢNG GIÁC VÀ PHƯƠNG TRÌNH LƯỢNG GIÁC &bull; Tỷ lệ: 90% Trắc nghiệm + 10% Tự luận
+            <p className="text-sm sm:text-base text-amber-900 font-bold mt-1">
+              {EXAM_SUBTITLE}
+            </p>
+            <p className="text-xs sm:text-sm text-slate-500 italic mt-0.5">
+              {EXAM_TIME_NOTE}
             </p>
           </div>
 
