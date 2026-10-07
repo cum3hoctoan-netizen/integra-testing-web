@@ -75,7 +75,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$\\cot\\alpha = \\dfrac{y_M}{x_M}$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Theo định nghĩa giá trị lượng giác của góc lượng giác trên đường tròn đơn vị, hoành độ $x_M$ của điểm $M$ chính là $\\cos\\alpha$ ($x_M = \\cos\\alpha$) và tung độ $y_M$ chính là $\\sin\\alpha$ ($y_M = \\sin\\alpha$).<br><strong>Đáp án đúng: B.</strong>',
+      '<strong>Lời giải:</strong> Theo định nghĩa giá trị lượng giác của góc lượng giác trên đường tròn đơn vị, hoành độ $x_M$ của điểm $M$ chính là $\\cos\\alpha$ ($x_M = \\cos\\alpha$) và tung độ $y_M$ chính là $\\sin\\alpha$ ($y_M = \\sin\\alpha$).',
   },
   {
     id: 'gk2',
@@ -91,7 +91,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$\\dfrac{7\\pi}{6}$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Sử dụng công thức chuyển đổi số đo góc từ độ sang radian: $$\\alpha = 105 \\times \\dfrac{\\pi}{180} = \\dfrac{105\\pi}{180} = \\dfrac{7\\pi}{12}\\text{ (rad)}$$<br><strong>Đáp án đúng: C.</strong>',
+      '<strong>Lời giải:</strong> Sử dụng công thức chuyển đổi số đo góc từ độ sang radian: $$\\alpha = 105 \\times \\dfrac{\\pi}{180} = \\dfrac{105\\pi}{180} = \\dfrac{7\\pi}{12}\\text{ (rad)}$$',
   },
   {
     id: 'gk3',
@@ -107,7 +107,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$\\sin\\alpha < 0, \\cos\\alpha < 0$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Khi $\\dfrac{\\pi}{2} < \\alpha < \\pi$, điểm biểu diễn $M$ của góc $\\alpha$ nằm ở góc phần tư thứ II trên mặt phẳng $Oxy$. Tại đây, hoành độ $x_M = \\cos\\alpha < 0$ và tung độ $y_M = \\sin\\alpha > 0$.<br><strong>Đáp án đúng: C.</strong>',
+      '<strong>Lời giải:</strong> Khi $\\dfrac{\\pi}{2} < \\alpha < \\pi$, điểm biểu diễn $M$ của góc $\\alpha$ nằm ở góc phần tư thứ II trên mặt phẳng $Oxy$. Tại đây, hoành độ $x_M = \\cos\\alpha < 0$ và tung độ $y_M = \\sin\\alpha > 0$.',
   },
   {
     id: 'gk4',
@@ -123,7 +123,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$-\\dfrac{16}{25}$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Vì $90^\\circ < \\alpha < 180^\\circ$ nên điểm biểu diễn góc $\\alpha$ thuộc góc phần tư II, do đó tung độ $\\sin\\alpha > 0$. Áp dụng đẳng thức lượng giác cơ bản $\\sin^2\\alpha + \\cos^2\\alpha = 1$: $$\\sin^2\\alpha = 1 - \\cos^2\\alpha = 1 - \\left(-\\dfrac{3}{5}\\right)^2 = \\dfrac{16}{25}$$ Vì $\\sin\\alpha > 0$ nên $\\sin\\alpha = \\sqrt{\\dfrac{16}{25}} = \\dfrac{4}{5}$.<br><strong>Đáp án đúng: B.</strong>',
+      '<strong>Lời giải:</strong> Vì $90^\\circ < \\alpha < 180^\\circ$ nên điểm biểu diễn góc $\\alpha$ thuộc góc phần tư II, do đó tung độ $\\sin\\alpha > 0$. Áp dụng đẳng thức lượng giác cơ bản $\\sin^2\\alpha + \\cos^2\\alpha = 1$: $$\\sin^2\\alpha = 1 - \\cos^2\\alpha = 1 - \\left(-\\dfrac{3}{5}\\right)^2 = \\dfrac{16}{25}$$ Vì $\\sin\\alpha > 0$ nên $\\sin\\alpha = \\sqrt{\\dfrac{16}{25}} = \\dfrac{4}{5}$.',
   },
   {
     id: 'gk5',
@@ -139,7 +139,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$\\tan\\alpha \\cdot \\cot\\alpha = -1$', isCorrect: true },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Đẳng thức đúng theo hệ thức lượng giác cơ bản là $\\tan\\alpha \\cdot \\cot\\alpha = 1$ (khi $\\sin\\alpha \\ne 0$ và $\\cos\\alpha \\ne 0$). Do đó mệnh đề $\\tan\\alpha \\cdot \\cot\\alpha = -1$ là sai.<br><strong>Đáp án đúng: D.</strong>',
+      '<strong>Lời giải:</strong> Đẳng thức đúng theo hệ thức lượng giác cơ bản là $\\tan\\alpha \\cdot \\cot\\alpha = 1$ (khi $\\sin\\alpha \\ne 0$ và $\\cos\\alpha \\ne 0$). Do đó mệnh đề $\\tan\\alpha \\cdot \\cot\\alpha = -1$ là sai.',
   },
   {
     id: 'gk6',
@@ -155,7 +155,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$P = \\cos\\alpha$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Áp dụng tính chất giá trị lượng giác của các góc liên quan đặc biệt:<br>- Góc bù: $\\sin(\\pi - \\alpha) = \\sin\\alpha$<br>- Góc phụ: $\\cos\\left(\\dfrac{\\pi}{2} - \\alpha\\right) = \\sin\\alpha$<br>- Góc đối: $\\sin(-\\alpha) = -\\sin\\alpha$<br>Thay vào biểu thức $P$: $$P = \\sin\\alpha + \\sin\\alpha - (-\\sin\\alpha) = 3\\sin\\alpha$$<br><strong>Đáp án đúng: B.</strong>',
+      '<strong>Lời giải:</strong> Áp dụng tính chất giá trị lượng giác của các góc liên quan đặc biệt:<br>- Góc bù: $\\sin(\\pi - \\alpha) = \\sin\\alpha$<br>- Góc phụ: $\\cos\\left(\\dfrac{\\pi}{2} - \\alpha\\right) = \\sin\\alpha$<br>- Góc đối: $\\sin(-\\alpha) = -\\sin\\alpha$<br>Thay vào biểu thức $P$: $$P = \\sin\\alpha + \\sin\\alpha - (-\\sin\\alpha) = 3\\sin\\alpha$$',
   },
   {
     id: 'gk7',
@@ -171,7 +171,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$\\dfrac{3}{4}$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Bình phương hai vế của đẳng thức $\\sin\\alpha + \\cos\\alpha = \\dfrac{1}{2}$: $$(\\sin\\alpha + \\cos\\alpha)^2 = \\left(\\dfrac{1}{2}\\right)^2 \\iff \\sin^2\\alpha + 2\\sin\\alpha \\cos\\alpha + \\cos^2\\alpha = \\dfrac{1}{4}$$ Vì $\\sin^2\\alpha + \\cos^2\\alpha = 1$ nên: $$1 + 2\\sin\\alpha \\cos\\alpha = \\dfrac{1}{4} \\iff 2\\sin\\alpha \\cos\\alpha = -\\dfrac{3}{4} \\iff \\sin\\alpha \\cos\\alpha = -\\dfrac{3}{8}$$<br><strong>Đáp án đúng: B.</strong>',
+      '<strong>Lời giải:</strong> Bình phương hai vế của đẳng thức $\\sin\\alpha + \\cos\\alpha = \\dfrac{1}{2}$: $$(\\sin\\alpha + \\cos\\alpha)^2 = \\left(\\dfrac{1}{2}\\right)^2 \\iff \\sin^2\\alpha + 2\\sin\\alpha \\cos\\alpha + \\cos^2\\alpha = \\dfrac{1}{4}$$ Vì $\\sin^2\\alpha + \\cos^2\\alpha = 1$ nên: $$1 + 2\\sin\\alpha \\cos\\alpha = \\dfrac{1}{4} \\iff 2\\sin\\alpha \\cos\\alpha = -\\dfrac{3}{4} \\iff \\sin\\alpha \\cos\\alpha = -\\dfrac{3}{8}$$',
   },
   {
     id: 'gk8',
@@ -187,7 +187,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$135\\pi\\text{ cm}$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong><br>- Bán kính bánh xe: $R = \\dfrac{180}{2} = 90\\text{ cm}$.<br>- Tốc độ quay: $15\\text{ vòng/phút} = \\dfrac{15}{60} = 0,25\\text{ vòng/giây}$.<br>- Trong $12\\text{ giây}$, bánh xe quay được số vòng là $N = 0,25 \\times 12 = 3\\text{ vòng}$.<br>- Số đo góc quay lượng giác $\\alpha = 3 \\times 2\\pi = 6\\pi\\text{ (rad)}$.<br>- Quãng đường điểm trên vành di chuyển: $l = R \\cdot \\alpha = 90 \\times 6\\pi = 540\\pi\\text{ cm}$.<br><strong>Đáp án đúng: B.</strong>',
+      '<strong>Lời giải:</strong><br>- Bán kính bánh xe: $R = \\dfrac{180}{2} = 90\\text{ cm}$.<br>- Tốc độ quay: $15\\text{ vòng/phút} = \\dfrac{15}{60} = 0,25\\text{ vòng/giây}$.<br>- Trong $12\\text{ giây}$, bánh xe quay được số vòng là $N = 0,25 \\times 12 = 3\\text{ vòng}$.<br>- Số đo góc quay lượng giác $\\alpha = 3 \\times 2\\pi = 6\\pi\\text{ (rad)}$.<br>- Quãng đường điểm trên vành di chuyển: $l = R \\cdot \\alpha = 90 \\times 6\\pi = 540\\pi\\text{ cm}$.',
   },
 
   // CHỦ ĐỀ 2: CÔNG THỨC LƯỢNG GIÁC (6 CÂU)
@@ -205,7 +205,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$\\sin(a-b) = \\sin a \\cos b + \\cos a \\sin b$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Theo công thức cộng đối với cosin của một tổng: $\\cos(a+b) = \\cos a \\cos b - \\sin a \\sin b$.<br><strong>Đáp án đúng: B.</strong>',
+      '<strong>Lời giải:</strong> Theo công thức cộng đối với cosin của một tổng: $\\cos(a+b) = \\cos a \\cos b - \\sin a \\sin b$.',
   },
   {
     id: 'gk10',
@@ -221,7 +221,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$-\\dfrac{2}{3}$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Sử dụng công thức nhân đôi của cosin theo sin: $$\\cos 2a = 1 - 2\\sin^2 a = 1 - 2 \\cdot \\left(\\dfrac{1}{3}\\right)^2 = 1 - \\dfrac{2}{9} = \\dfrac{7}{9}$$<br><strong>Đáp án đúng: B.</strong>',
+      '<strong>Lời giải:</strong> Sử dụng công thức nhân đôi của cosin theo sin: $$\\cos 2a = 1 - 2\\sin^2 a = 1 - 2 \\cdot \\left(\\dfrac{1}{3}\\right)^2 = 1 - \\dfrac{2}{9} = \\dfrac{7}{9}$$',
   },
   {
     id: 'gk11',
@@ -237,7 +237,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$\\sin a \\cos b = \\dfrac{1}{2}[\\sin(a-b) - \\sin(a+b)]$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Theo công thức biến đổi tích thành tổng đối với tích hai hàm sin: $$\\sin a \\sin b = \\dfrac{1}{2}[\\cos(a-b) - \\cos(a+b)]$$<br><strong>Đáp án đúng: A.</strong>',
+      '<strong>Lời giải:</strong> Theo công thức biến đổi tích thành tổng đối với tích hai hàm sin: $$\\sin a \\sin b = \\dfrac{1}{2}[\\cos(a-b) - \\cos(a+b)]$$',
   },
   {
     id: 'gk12',
@@ -253,7 +253,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$M = \\cot 2x$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Áp dụng công thức biến đổi tổng thành tích cho tử số và mẫu số:<br>$$\\sin 3x + \\sin x = 2\\sin 2x \\cos x$$<br>$$\\cos 3x + \\cos x = 2\\cos 2x \\cos x$$<br>Do đó: $$M = \\dfrac{2\\sin 2x \\cos x}{2\\cos 2x \\cos x} = \\dfrac{\\sin 2x}{\\cos 2x} = \\tan 2x$$<br><strong>Đáp án đúng: B.</strong>',
+      '<strong>Lời giải:</strong> Áp dụng công thức biến đổi tổng thành tích cho tử số và mẫu số:<br>$$\\sin 3x + \\sin x = 2\\sin 2x \\cos x$$<br>$$\\cos 3x + \\cos x = 2\\cos 2x \\cos x$$<br>Do đó: $$M = \\dfrac{2\\sin 2x \\cos x}{2\\cos 2x \\cos x} = \\dfrac{\\sin 2x}{\\cos 2x} = \\tan 2x$$',
   },
   {
     id: 'gk13',
@@ -269,7 +269,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$\\dfrac{\\sqrt{3}}{2}$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Biến đổi tích thành tổng: $$A = \\cos 75^\\circ \\cos 15^\\circ = \\dfrac{1}{2}[\\cos(75^\\circ - 15^\\circ) + \\cos(75^\\circ + 15^\\circ)] = \\dfrac{1}{2}[\\cos 60^\\circ + \\cos 90^\\circ] = \\dfrac{1}{2}\\left(\\dfrac{1}{2} + 0\\right) = \\dfrac{1}{4}$$<br><strong>Đáp án đúng: B.</strong>',
+      '<strong>Lời giải:</strong> Biến đổi tích thành tổng: $$A = \\cos 75^\\circ \\cos 15^\\circ = \\dfrac{1}{2}[\\cos(75^\\circ - 15^\\circ) + \\cos(75^\\circ + 15^\\circ)] = \\dfrac{1}{2}[\\cos 60^\\circ + \\cos 90^\\circ] = \\dfrac{1}{2}\\left(\\dfrac{1}{2} + 0\\right) = \\dfrac{1}{4}$$',
   },
   {
     id: 'gk14',
@@ -285,7 +285,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$A = 3, \\varphi = \\dfrac{\\pi}{2}$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Biến đổi vế phải bằng công thức cộng: $$f(t) = 3\\sin t + 3\\cos t = 3\\sqrt{2}\\left(\\dfrac{1}{\\sqrt{2}}\\sin t + \\dfrac{1}{\\sqrt{2}}\\cos t\\right) = 3\\sqrt{2}\\sin\\left(t + \\dfrac{\\pi}{4}\\right)$$ Đối chiếu với dạng $f(t) = A\\sin(t + \\varphi) \\implies A = 3\\sqrt{2}$ và $\\varphi = \\dfrac{\\pi}{4}$.<br><strong>Đáp án đúng: A.</strong>',
+      '<strong>Lời giải:</strong> Biến đổi vế phải bằng công thức cộng: $$f(t) = 3\\sin t + 3\\cos t = 3\\sqrt{2}\\left(\\dfrac{1}{\\sqrt{2}}\\sin t + \\dfrac{1}{\\sqrt{2}}\\cos t\\right) = 3\\sqrt{2}\\sin\\left(t + \\dfrac{\\pi}{4}\\right)$$ Đối chiếu với dạng $f(t) = A\\sin(t + \\varphi) \\implies A = 3\\sqrt{2}$ và $\\varphi = \\dfrac{\\pi}{4}$.',
   },
 
   // CHỦ ĐỀ 3: HÀM SỐ LƯỢNG GIÁC (7 CÂU)
@@ -303,7 +303,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$D = \\mathbb{R} \\setminus \\left\\{\\dfrac{\\pi}{2} + k\\pi \\;\\middle|\\; k \\in \\mathbb{Z}\\right\\}$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Hàm số $y = \\tan\\left(x - \\dfrac{\\pi}{3}\\right)$ xác định khi và chỉ khi: $$x - \\dfrac{\\pi}{3} \\ne \\dfrac{\\pi}{2} + k\\pi \\iff x \\ne \\dfrac{5\\pi}{6} + k\\pi \\quad (k \\in \\mathbb{Z})$$<br><strong>Đáp án đúng: B.</strong>',
+      '<strong>Lời giải:</strong> Hàm số $y = \\tan\\left(x - \\dfrac{\\pi}{3}\\right)$ xác định khi và chỉ khi: $$x - \\dfrac{\\pi}{3} \\ne \\dfrac{\\pi}{2} + k\\pi \\iff x \\ne \\dfrac{5\\pi}{6} + k\\pi \\quad (k \\in \\mathbb{Z})$$',
   },
   {
     id: 'gk16',
@@ -319,7 +319,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$T = [-3; 2]$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Với mọi $x \\in \\mathbb{R}$, ta có $-1 \\le \\sin\\left(x + \\dfrac{\\pi}{4}\right) \\le 1 \\implies -2 \\le 2\\sin\\left(x + \\dfrac{\\pi}{4}\right) \\le 2 \\implies -5 \\le y \\le -1$. Do đó tập giá trị của hàm số là $T = [-5; -1]$.<br><strong>Đáp án đúng: B.</strong>',
+      '<strong>Lời giải:</strong> Với mọi $x \\in \\mathbb{R}$, ta có $-1 \\le \\sin\\left(x + \\dfrac{\\pi}{4}\right) \\le 1 \\implies -2 \\le 2\\sin\\left(x + \\dfrac{\\pi}{4}\right) \\le 2 \\implies -5 \\le y \\le -1$. Do đó tập giá trị của hàm số là $T = [-5; -1]$.',
   },
   {
     id: 'gk17',
@@ -335,7 +335,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$y = \\sin x \\cdot \\cos 2x$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Xét $f(x) = x \\sin x$ có tập xác định $D = \\mathbb{R}$. Với mọi $x \\in \\mathbb{R}$: $$f(-x) = (-x)\\sin(-x) = (-x)(-\\sin x) = x \\sin x = f(x)$$ Do đó $y = x \\sin x$ là hàm số chẵn.<br><strong>Đáp án đúng: B.</strong>',
+      '<strong>Lời giải:</strong> Xét $f(x) = x \\sin x$ có tập xác định $D = \\mathbb{R}$. Với mọi $x \\in \\mathbb{R}$: $$f(-x) = (-x)\\sin(-x) = (-x)(-\\sin x) = x \\sin x = f(x)$$ Do đó $y = x \\sin x$ là hàm số chẵn.',
   },
   {
     id: 'gk18',
@@ -351,7 +351,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$T = 4\\pi$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Hàm số $y = \\cos(ax + b)$ tuần hoàn với chu kỳ $T = \\dfrac{2\\pi}{|a|}$. Áp dụng với $a = 2 \\implies T = \\dfrac{2\\pi}{2} = \\pi$.<br><strong>Đáp án đúng: B.</strong>',
+      '<strong>Lời giải:</strong> Hàm số $y = \\cos(ax + b)$ tuần hoàn với chu kỳ $T = \\dfrac{2\\pi}{|a|}$. Áp dụng với $a = 2 \\implies T = \\dfrac{2\\pi}{2} = \\pi$.',
   },
   {
     id: 'gk19',
@@ -367,7 +367,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: 'Nghịch biến trên toàn bộ khoảng $(0; \\pi)$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Dựa vào đồ thị hàm số $y = \\sin x$: khi $x$ tăng từ $0$ đến $\\dfrac{\\pi}{2}$ thì $\\sin x$ tăng từ $0$ lên $1$ (đồng biến); khi $x$ tăng từ $\\dfrac{\\pi}{2}$ đến $\\pi$ thì $\\sin x$ giảm từ $1$ xuống $0$ (nghịch biến).<br><strong>Đáp án đúng: A.</strong>',
+      '<strong>Lời giải:</strong> Dựa vào đồ thị hàm số $y = \\sin x$: khi $x$ tăng từ $0$ đến $\\dfrac{\\pi}{2}$ thì $\\sin x$ tăng từ $0$ lên $1$ (đồng biến); khi $x$ tăng từ $\\dfrac{\\pi}{2}$ đến $\\pi$ thì $\\sin x$ giảm từ $1$ xuống $0$ (nghịch biến).',
   },
   {
     id: 'gk20',
@@ -383,7 +383,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$M = 3, m = -1$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Biến đổi hàm số theo $\\sin x$: $$y = 2(1 - \\sin^2 x) + 2\\sin x + 1 = -2\\sin^2 x + 2\\sin x + 3$$ Đặt $t = \\sin x$ với $t \\in [-1; 1]$. Khảo sát tam thức $g(t) = -2t^2 + 2t + 3$ trên $[-1; 1]$:<br>- Đỉnh parabol $t_0 = \\dfrac{1}{2} \\in [-1; 1] \\implies g\\left(\\dfrac{1}{2}\\right) = 3,5$.<br>- Biên: $g(-1) = -1$; $g(1) = 3$.<br>Do đó $M = 3,5$ và $m = -1$.<br><strong>Đáp án đúng: B.</strong>',
+      '<strong>Lời giải:</strong> Biến đổi hàm số theo $\\sin x$: $$y = 2(1 - \\sin^2 x) + 2\\sin x + 1 = -2\\sin^2 x + 2\\sin x + 3$$ Đặt $t = \\sin x$ với $t \\in [-1; 1]$. Khảo sát tam thức $g(t) = -2t^2 + 2t + 3$ trên $[-1; 1]$:<br>- Đỉnh parabol $t_0 = \\dfrac{1}{2} \\in [-1; 1] \\implies g\\left(\\dfrac{1}{2}\\right) = 3,5$.<br>- Biên: $g(-1) = -1$; $g(1) = 3$.<br>Do đó $M = 3,5$ và $m = -1$.',
   },
   {
     id: 'gk21',
@@ -399,7 +399,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$10\\text{ m}$ vào lúc $12\\text{ giờ}$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Vì $-1 \\le \\cos\\left(\\dfrac{\\pi t}{6}\\right) \\le 1$ nên $h(t) \\le 2,5(1) + 10 = 12,5\\text{ m}$. Đạt giá trị lớn nhất khi $\\cos\\left(\\dfrac{\\pi t}{6}\\right) = 1 \\iff \\dfrac{\\pi t}{6} = k2\\pi \\iff t = 12k$. Với $0 \\le t \\le 24 \\implies t \\in \\{0; 12; 24\\}$ (tức lúc $0$ giờ, $12$ giờ trưa và $24$ giờ đêm).<br><strong>Đáp án đúng: B.</strong>',
+      '<strong>Lời giải:</strong> Vì $-1 \\le \\cos\\left(\\dfrac{\\pi t}{6}\\right) \\le 1$ nên $h(t) \\le 2,5(1) + 10 = 12,5\\text{ m}$. Đạt giá trị lớn nhất khi $\\cos\\left(\\dfrac{\\pi t}{6}\\right) = 1 \\iff \\dfrac{\\pi t}{6} = k2\\pi \\iff t = 12k$. Với $0 \\le t \\le 24 \\implies t \\in \\{0; 12; 24\\}$ (tức lúc $0$ giờ, $12$ giờ trưa và $24$ giờ đêm).',
   },
 
   // CHỦ ĐỀ 4: PHƯƠNG TRÌNH LƯỢNG GIÁC CƠ BẢN (9 CÂU)
@@ -417,7 +417,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$m \\ge 0$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Vì tập giá trị của hàm số $y = \\sin x$ là $[-1; 1]$ nên phương trình $\\sin x = m$ có nghiệm khi và chỉ khi $-1 \\le m \\le 1$.<br><strong>Đáp án đúng: B.</strong>',
+      '<strong>Lời giải:</strong> Vì tập giá trị của hàm số $y = \\sin x$ là $[-1; 1]$ nên phương trình $\\sin x = m$ có nghiệm khi và chỉ khi $-1 \\le m \\le 1$.',
   },
   {
     id: 'gk23',
@@ -433,7 +433,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$x = \\dfrac{\\pi}{6} + k\\pi \\quad (k \\in \\mathbb{Z})$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Theo công thức nghiệm phương trình sin cơ bản: $$\\sin x = \\sin\\alpha \\iff \\left[\\begin{array}{l} x = \\alpha + k2\\pi \\\\ x = \\pi - \\alpha + k2\\pi \\end{array}\\right. \\quad (k \\in \\mathbb{Z})$$ Với $\\alpha = \\dfrac{\\pi}{6} \\implies x = \\dfrac{\\pi}{6} + k2\\pi$ hoặc $x = \\pi - \\dfrac{\\pi}{6} + k2\\pi = \\dfrac{5\\pi}{6} + k2\\pi$.<br><strong>Đáp án đúng: A.</strong>',
+      '<strong>Lời giải:</strong> Theo công thức nghiệm phương trình sin cơ bản: $$\\sin x = \\sin\\alpha \\iff \\left[\\begin{array}{l} x = \\alpha + k2\\pi \\\\ x = \\pi - \\alpha + k2\\pi \\end{array}\\right. \\quad (k \\in \\mathbb{Z})$$ Với $\\alpha = \\dfrac{\\pi}{6} \\implies x = \\dfrac{\\pi}{6} + k2\\pi$ hoặc $x = \\pi - \\dfrac{\\pi}{6} + k2\\pi = \\dfrac{5\\pi}{6} + k2\\pi$.',
   },
   {
     id: 'gk24',
@@ -449,7 +449,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$x = \\pm \\dfrac{\\pi}{3} + k\\pi \\quad (k \\in \\mathbb{Z})$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Ta có $\\tan x = \\sqrt{3} = \\tan\\dfrac{\\pi}{3} \\iff x = \\dfrac{\\pi}{3} + k\\pi \\quad (k \\in \\mathbb{Z})$.<br><strong>Đáp án đúng: B.</strong>',
+      '<strong>Lời giải:</strong> Ta có $\\tan x = \\sqrt{3} = \\tan\\dfrac{\\pi}{3} \\iff x = \\dfrac{\\pi}{3} + k\\pi \\quad (k \\in \\mathbb{Z})$.',
   },
   {
     id: 'gk25',
@@ -465,7 +465,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$S = \\left\\{\\dfrac{\\pi}{4} + \\dfrac{k\\pi}{2} \\;\\middle|\\; k \\in \\mathbb{Z}\\right\\}$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> $$\\cos\\left(2x - \\dfrac{\\pi}{4}\\right) = 0 \\iff 2x - \\dfrac{\\pi}{4} = \\dfrac{\\pi}{2} + k\\pi \\iff 2x = \\dfrac{3\\pi}{4} + k\\pi \\iff x = \\dfrac{3\\pi}{8} + \\dfrac{k\\pi}{2} \\quad (k \\in \\mathbb{Z})$$<br><strong>Đáp án đúng: B.</strong>',
+      '<strong>Lời giải:</strong> $$\\cos\\left(2x - \\dfrac{\\pi}{4}\\right) = 0 \\iff 2x - \\dfrac{\\pi}{4} = \\dfrac{\\pi}{2} + k\\pi \\iff 2x = \\dfrac{3\\pi}{4} + k\\pi \\iff x = \\dfrac{3\\pi}{8} + \\dfrac{k\\pi}{2} \\quad (k \\in \\mathbb{Z})$$',
   },
   {
     id: 'gk26',
@@ -481,7 +481,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$\\left[\\begin{array}{l} x = k\\pi \\\\ x = \\dfrac{\\pi}{3} + k\\pi \\end{array}\\right. \\quad (k \\in \\mathbb{Z})$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> $$\\sin 2x = \\sin x \\iff \\left[\\begin{array}{l} 2x = x + k2\\pi \\\\ 2x = \\pi - x + k2\\pi \\end{array}\\right. \\iff \\left[\\begin{array}{l} x = k2\\pi \\\\ 3x = \\pi + k2\\pi \\end{array}\\right. \\iff \\left[\\begin{array}{l} x = k2\\pi \\\\ x = \\dfrac{\\pi}{3} + \\dfrac{k2\\pi}{3} \\end{array}\\right. \\quad (k \\in \\mathbb{Z})$$<br><strong>Đáp án đúng: B.</strong>',
+      '<strong>Lời giải:</strong> $$\\sin 2x = \\sin x \\iff \\left[\\begin{array}{l} 2x = x + k2\\pi \\\\ 2x = \\pi - x + k2\\pi \\end{array}\\right. \\iff \\left[\\begin{array}{l} x = k2\\pi \\\\ 3x = \\pi + k2\\pi \\end{array}\\right. \\iff \\left[\\begin{array}{l} x = k2\\pi \\\\ x = \\dfrac{\\pi}{3} + \\dfrac{k2\\pi}{3} \\end{array}\\right. \\quad (k \\in \\mathbb{Z})$$',
   },
   {
     id: 'gk27',
@@ -497,7 +497,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$4$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Phương trình tương đương $\\cos x = \\cos\\dfrac{2\\pi}{3} \\iff x = \\pm \\dfrac{2\\pi}{3} + k2\\pi \\quad (k \\in \\mathbb{Z})$. Xét $x \\in [0; 2\\pi]$: chọn $k = 0 \\Rightarrow x_1 = \\dfrac{2\\pi}{3}$; chọn $k = 1 \\Rightarrow x_2 = \\dfrac{4\\pi}{3}$. Vậy phương trình có $2$ nghiệm phân biệt trên đoạn $[0; 2\\pi]$.<br><strong>Đáp án đúng: B.</strong>',
+      '<strong>Lời giải:</strong> Phương trình tương đương $\\cos x = \\cos\\dfrac{2\\pi}{3} \\iff x = \\pm \\dfrac{2\\pi}{3} + k2\\pi \\quad (k \\in \\mathbb{Z})$. Xét $x \\in [0; 2\\pi]$: chọn $k = 0 \\Rightarrow x_1 = \\dfrac{2\\pi}{3}$; chọn $k = 1 \\Rightarrow x_2 = \\dfrac{4\\pi}{3}$. Vậy phương trình có $2$ nghiệm phân biệt trên đoạn $[0; 2\\pi]$.',
   },
   {
     id: 'gk28',
@@ -513,7 +513,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$\\dfrac{3\\pi}{2}$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> $\\tan x = \\dfrac{1}{\\sqrt{3}} \\iff x = \\dfrac{\\pi}{6} + k\\pi$. Với $x \\in (0; 2\\pi)$ ta có $x_1 = \\dfrac{\\pi}{6}$ và $x_2 = \\dfrac{7\\pi}{6}$. Tổng hai nghiệm là $\\dfrac{\\pi}{6} + \\dfrac{7\\pi}{6} = \\dfrac{4\\pi}{3}$.<br><strong>Đáp án đúng: C.</strong>',
+      '<strong>Lời giải:</strong> $\\tan x = \\dfrac{1}{\\sqrt{3}} \\iff x = \\dfrac{\\pi}{6} + k\\pi$. Với $x \\in (0; 2\\pi)$ ta có $x_1 = \\dfrac{\\pi}{6}$ và $x_2 = \\dfrac{7\\pi}{6}$. Tổng hai nghiệm là $\\dfrac{\\pi}{6} + \\dfrac{7\\pi}{6} = \\dfrac{4\\pi}{3}$.',
   },
   {
     id: 'gk29',
@@ -529,7 +529,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$4$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Điều kiện xác định: $\\cos x \\ne 0 \\iff x \\ne \\dfrac{\\pi}{2} + k\\pi$. Khi đó $\\sin 2x = 0 \\iff 2\\sin x \\cos x = 0 \\iff \\sin x = 0 \\iff x = k\\pi$. Các nghiệm $x = k\\pi$ thỏa mãn điều kiện và được biểu diễn bởi đúng 2 điểm phân biệt là $(1; 0)$ và $(-1; 0)$ trên đường tròn lượng giác.<br><strong>Đáp án đúng: B.</strong>',
+      '<strong>Lời giải:</strong> Điều kiện xác định: $\\cos x \\ne 0 \\iff x \\ne \\dfrac{\\pi}{2} + k\\pi$. Khi đó $\\sin 2x = 0 \\iff 2\\sin x \\cos x = 0 \\iff \\sin x = 0 \\iff x = k\\pi$. Các nghiệm $x = k\\pi$ thỏa mãn điều kiện và được biểu diễn bởi đúng 2 điểm phân biệt là $(1; 0)$ và $(-1; 0)$ trên đường tròn lượng giác.',
   },
   {
     id: 'gk30',
@@ -545,7 +545,7 @@ const MCQ_QUESTIONS_GK1_TOAN11: QuestionMCQ[] = [
       { id: 3, text: '$-1 \\le m \\le 0$', isCorrect: false },
     ],
     explanation:
-      '<strong>Lời giải:</strong> Với mọi $x \\in \\left(0; \\dfrac{\\pi}{2}\\right)$, ta có $0 < \\cos x < 1$. Do đó phương trình có nghiệm duy nhất thuộc khoảng khi và chỉ khi: $$0 < m + 1 < 1 \\iff -1 < m < 0$$<br><strong>Đáp án đúng: B.</strong>',
+      '<strong>Lời giải:</strong> Với mọi $x \\in \\left(0; \\dfrac{\\pi}{2}\\right)$, ta có $0 < \\cos x < 1$. Do đó phương trình có nghiệm duy nhất thuộc khoảng khi và chỉ khi: $$0 < m + 1 < 1 \\iff -1 < m < 0$$',
   },
 ];
 
@@ -687,10 +687,10 @@ export default function Toan11GiuaKy1LuongGiac90pPage() {
     let correctShort = 0;
     const wrongSkills: string[] = [];
 
-    MCQ_QUESTIONS_GK1_TOAN11.forEach((q) => {
-      const studentSelectedId = mcqAnswers[q.id];
-      const chosenOption = q.options.find((opt) => opt.id === studentSelectedId);
-      const isCorrect = chosenOption ? chosenOption.isCorrect : false;
+    shuffledMCQQuestions.forEach((q) => {
+      const selectedIndex = mcqAnswers[q.id];
+      const chosenOption = selectedIndex !== undefined ? q.options[selectedIndex] : null;
+      const isCorrect = chosenOption ? chosenOption.isCorrect === true : false;
 
       if (isCorrect) {
         calculatedScore += q.points;
@@ -955,7 +955,7 @@ export default function Toan11GiuaKy1LuongGiac90pPage() {
                   Mã số: <span className="font-mono font-bold text-white">{maHocSinh || 'HS11-GK1-90P'}</span> • Lớp: <span className="font-semibold text-white">{lopNhom || '11'}</span>
                 </p>
                 <div className="pt-2 flex flex-wrap gap-4 text-xs text-sky-100">
-                  <span>Trắc nghiệm: <strong>{soCauDungMCQ}/{MCQ_QUESTIONS_GK1_TOAN11.length}</strong> câu đúng</span>
+                  <span>Trắc nghiệm: <strong>{soCauDungMCQ}/{shuffledMCQQuestions.length}</strong> câu đúng</span>
                   <span>Tự luận: <strong>{soCauDungShort}/{SHORTANS_QUESTIONS_GK1_TOAN11.length}</strong> ý đúng</span>
                   <span>Thời gian làm bài: <strong>{Math.max(1, Math.round((90 * 60 - timeLeft) / 60))} phút</strong></span>
                 </div>
@@ -1015,9 +1015,13 @@ export default function Toan11GiuaKy1LuongGiac90pPage() {
 
           <div className="space-y-4">
             {shuffledMCQQuestions.map((q) => {
-              const selectedOptId = mcqAnswers[q.id];
-              const chosenOption = q.options.find((opt) => opt.id === selectedOptId);
-              const isCorrect = chosenOption ? chosenOption.isCorrect : false;
+              const selectedIndex = mcqAnswers[q.id];
+              const chosenOption = selectedIndex !== undefined ? q.options[selectedIndex] : null;
+              const isStudentCorrect = chosenOption ? chosenOption.isCorrect === true : false;
+
+              // TÍNH TOÁN ĐỘNG CHỮ CÁI ĐÁP ÁN ĐÚNG TRÊN MẢNG HIỆN TẠI (A, B, C, D)
+              const correctOptionIndex = q.options.findIndex((opt) => opt.isCorrect === true);
+              const dynamicCorrectLetter = ['A', 'B', 'C', 'D'][correctOptionIndex] || 'A';
 
               return (
                 <div
@@ -1025,12 +1029,12 @@ export default function Toan11GiuaKy1LuongGiac90pPage() {
                   id={`cau-${q.number}`}
                   className={`bg-white rounded-2xl p-5 border shadow-sm transition-all ${
                     isSubmitted
-                      ? isCorrect
+                      ? isStudentCorrect
                         ? 'border-emerald-300 bg-emerald-50/20'
-                        : selectedOptId !== undefined
+                        : selectedIndex !== undefined
                         ? 'border-rose-300 bg-rose-50/20'
                         : 'border-amber-300 bg-amber-50/20'
-                      : selectedOptId !== undefined
+                      : selectedIndex !== undefined
                       ? 'border-sky-300 shadow-sky-50'
                       : 'border-slate-200'
                   }`}
@@ -1045,16 +1049,16 @@ export default function Toan11GiuaKy1LuongGiac90pPage() {
                       </span>
                     </div>
 
-                    {/* Hiển thị kết quả khi đã submit */}
+                    {/* Hiển thị kết quả chấm điểm khi đã nộp bài */}
                     {isSubmitted && (
                       <span
                         className={`text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 ${
-                          isCorrect
+                          isStudentCorrect
                             ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                             : 'bg-rose-100 text-rose-800 border border-rose-300'
                         }`}
                       >
-                        {isCorrect ? '✓ Đúng (+0.3đ)' : '✕ Sai (+0.0đ)'}
+                        {isStudentCorrect ? '✓ Đúng (+0.3đ)' : '✕ Sai (+0.0đ)'}
                       </span>
                     )}
                   </div>
@@ -1065,12 +1069,12 @@ export default function Toan11GiuaKy1LuongGiac90pPage() {
                     className="text-slate-800 font-medium text-sm sm:text-base leading-relaxed mb-4"
                   />
 
-                  {/* Danh sách 4 phương án (Đã xáo trộn Object theo Fisher-Yates) */}
+                  {/* Danh sách 4 phương án (Đã xáo trộn Object giữ cờ isCorrect) */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {q.options.map((opt, displayIndex) => {
-                      const displayLabel = ['A', 'B', 'C', 'D'][displayIndex];
-                      const isOptionSelected = selectedOptId === opt.id;
-                      const isOptionCorrect = opt.isCorrect;
+                    {q.options.map((opt, optIndex) => {
+                      const displayLabel = ['A', 'B', 'C', 'D'][optIndex];
+                      const isOptionSelected = selectedIndex === optIndex;
+                      const isOptionCorrect = opt.isCorrect === true;
 
                       let btnStyle = 'border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300';
                       if (!isSubmitted) {
@@ -1079,8 +1083,10 @@ export default function Toan11GiuaKy1LuongGiac90pPage() {
                         }
                       } else {
                         if (isOptionCorrect) {
+                          // Phương án đúng luôn được highlight màu xanh ngọc
                           btnStyle = 'border-emerald-500 bg-emerald-50 text-emerald-900 font-bold ring-2 ring-emerald-300';
                         } else if (isOptionSelected && !isOptionCorrect) {
+                          // Nếu học sinh chọn sai phương án này thì gạch ngang đỏ
                           btnStyle = 'border-rose-500 bg-rose-50 text-rose-900 line-through ring-2 ring-rose-200';
                         } else {
                           btnStyle = 'border-slate-200 bg-slate-50/50 opacity-60 text-slate-500';
@@ -1089,13 +1095,13 @@ export default function Toan11GiuaKy1LuongGiac90pPage() {
 
                       return (
                         <button
-                          key={opt.id}
+                          key={optIndex}
                           type="button"
                           disabled={isSubmitted}
                           onClick={() =>
                             setMcqAnswers((prev) => ({
                               ...prev,
-                              [q.id]: opt.id,
+                              [q.id]: optIndex,
                             }))
                           }
                           className={`w-full text-left p-3 rounded-xl border flex items-center gap-3 transition cursor-pointer disabled:cursor-default ${btnStyle}`}
@@ -1115,11 +1121,16 @@ export default function Toan11GiuaKy1LuongGiac90pPage() {
                     })}
                   </div>
 
-                  {/* Lời giải chi tiết sau khi nộp (Có đủ overflow-x-auto whitespace-pre-wrap break-words) */}
+                  {/* Lời giải chi tiết sau khi nộp (Hiển thị chữ cái đúng ĐỘNG sau khi shuffle) */}
                   {isSubmitted && (
                     <div className="mt-4 pt-4 border-t border-slate-100 text-xs sm:text-sm bg-slate-50/80 p-3.5 rounded-xl text-slate-700 overflow-x-auto whitespace-pre-wrap break-words">
-                      <div className="font-semibold text-slate-900 mb-1 flex items-center gap-1.5">
-                        <span className="text-sky-600">💡</span> Lời giải chi tiết:
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-2.5 py-1 rounded-md text-xs">
+                          ✓ Đáp án đúng: {dynamicCorrectLetter}
+                        </span>
+                        <span className="font-semibold text-slate-800 flex items-center gap-1">
+                          <span className="text-sky-600">💡</span> Lời giải chi tiết:
+                        </span>
                       </div>
                       <MathContent
                         content={q.explanation}
