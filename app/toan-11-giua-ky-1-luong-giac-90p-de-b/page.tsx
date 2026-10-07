@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import MathContent from '@/components/MathContent';
 
 // --- THÔNG TIN TIÊU ĐỀ TRÍCH XUẤT CHÍNH XÁC TỪ MÃ NGUỒN LATEX ---
 const EXAM_TITLE = 'ĐỀ KIỂM TRA GIỮA KỲ I MÔN TOÁN LỚP 11 - 90 PHÚT [ĐỀ B]';
@@ -12,34 +13,25 @@ const GOOGLE_APP_SCRIPT_URL =
   'https://script.google.com/macros/s/AKfycbwFjkENCxOPVJcFo8OmXuLad5kcMEC9_Uu48hF045AO0yC8-TnHivEI0ohfUHZkJQlN/exec';
 const N8N_WEBHOOK_URL = 'http://localhost:5678/webhook-test/cham-diem-integra';
 
-// --- INTERFACES & TYPES ---
-interface Option {
-  key: 'A' | 'B' | 'C' | 'D';
+// --- INTERFACES & TYPES (TUÂN THỦ 100% CẤU TRÚC SHUFFLE OBJECT VÀ ISCORRECT) ---
+export interface OptionItem {
+  id: number; // originalIndex: 0, 1, 2, 3
   text: string;
+  isCorrect: boolean;
 }
 
-interface ShuffledOption {
-  originalKey: 'A' | 'B' | 'C' | 'D';
-  text: string;
-}
-
-interface QuestionMCQ {
+export interface QuestionMCQ {
   id: string;
   number: number;
   type: 'mcq';
   skill: string;
   points: number;
   text: string;
-  options: Option[];
-  correct: 'A' | 'B' | 'C' | 'D';
+  options: OptionItem[];
   explanation: string;
 }
 
-interface ShuffledQuestionMCQ extends Omit<QuestionMCQ, 'options'> {
-  options: ShuffledOption[];
-}
-
-interface QuestionShortAns {
+export interface QuestionShortAns {
   id: string;
   number: number;
   subLabel?: string;
@@ -53,12 +45,9 @@ interface QuestionShortAns {
   validator: (val: string) => boolean;
 }
 
-// Thuật toán xáo trộn mảng Fisher-Yates (Knuth Shuffle)
-function shuffleOptions(options: Option[]): ShuffledOption[] {
-  const result: ShuffledOption[] = options.map((opt) => ({
-    originalKey: opt.key,
-    text: opt.text,
-  }));
+// Thuật toán xáo trộn mảng Fisher-Yates (Knuth Shuffle) cho mảng Object
+function shuffleOptions(options: OptionItem[]): OptionItem[] {
+  const result: OptionItem[] = options.map((opt) => ({ ...opt }));
   for (let i = result.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [result[i], result[j]] = [result[j], result[i]];
@@ -68,9 +57,9 @@ function shuffleOptions(options: Option[]): ShuffledOption[] {
 
 // ==========================================
 // DỮ LIỆU ĐỀ THI GIỮA KỲ 1 TOÁN 11 [ĐỀ B] - 90 PHÚT
+// TẤT CẢ KÝ TỰ ĐẶC BIỆT (\right, \dfrac,...) ĐỀU ĐƯỢC DOUBLE-ESCAPE CHUẨN XÁC
 // ==========================================
 
-// PHẦN I. TRẮC NGHIỆM NHIỀU LỰA CHỌN (30 CÂU - 9,0 ĐIỂM, 0.3Đ/CÂU)
 const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
   // CHỦ ĐỀ 1: GIÁ TRỊ LƯỢNG GIÁC CỦA GÓC LƯỢNG GIÁC (8 CÂU: 1 -> 8)
   {
@@ -81,12 +70,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Trên mặt phẳng tọa độ $Oxy$, cho đường tròn lượng giác tâm $O$ bán kính $R=1$ với điểm gốc $A(1;0)$. Mỗi góc lượng giác $\\alpha$ xác định duy nhất một điểm $M(x_M; y_M)$ trên đường tròn lượng giác. Khẳng định nào sau đây <strong>đúng</strong>?',
     options: [
-      { key: 'A', text: '$\\sin\\alpha = y_M$' },
-      { key: 'B', text: '$\\cos\\alpha = y_M$' },
-      { key: 'C', text: '$\\tan\\alpha = \\dfrac{x_M}{y_M}$' },
-      { key: 'D', text: '$\\cot\\alpha = \\dfrac{y_M}{x_M}$' },
+      { id: 0, text: '$\\sin\\alpha = y_M$', isCorrect: true },
+      { id: 1, text: '$\\cos\\alpha = y_M$', isCorrect: false },
+      { id: 2, text: '$\\tan\\alpha = \\dfrac{x_M}{y_M}$', isCorrect: false },
+      { id: 3, text: '$\\cot\\alpha = \\dfrac{y_M}{x_M}$', isCorrect: false },
     ],
-    correct: 'A',
     explanation:
       '<strong>Lời giải:</strong> Theo định nghĩa giá trị lượng giác của góc lượng giác trên đường tròn đơn vị, tung độ $y_M$ của điểm $M$ chính là $\\sin\\alpha$ ($y_M = \\sin\\alpha$) và hoành độ $x_M$ là $\\cos\\alpha$ ($x_M = \\cos\\alpha$).<br><strong>Đáp án đúng: A.</strong>',
   },
@@ -98,12 +86,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Số đo góc lượng giác $\\alpha = 165^\\circ$ khi đổi sang đơn vị radian bằng:',
     options: [
-      { key: 'A', text: '$\\dfrac{7\\pi}{12}$' },
-      { key: 'B', text: '$\\dfrac{11\\pi}{12}$' },
-      { key: 'C', text: '$\\dfrac{5\\pi}{12}$' },
-      { key: 'D', text: '$\\dfrac{11\\pi}{6}$' },
+      { id: 0, text: '$\\dfrac{7\\pi}{12}$', isCorrect: false },
+      { id: 1, text: '$\\dfrac{11\\pi}{12}$', isCorrect: true },
+      { id: 2, text: '$\\dfrac{5\\pi}{12}$', isCorrect: false },
+      { id: 3, text: '$\\dfrac{11\\pi}{6}$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong> Đổi từ độ sang radian: $$\\alpha = 165 \\times \\dfrac{\\pi}{180} = \\dfrac{165\\pi}{180} = \\dfrac{11\\pi}{12}\\text{ (rad)}$$<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -115,12 +102,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Cho góc lượng giác $\\alpha$ thỏa mãn $\\pi < \\alpha < \\dfrac{3\\pi}{2}$. Mệnh đề nào sau đây <strong>đúng</strong>?',
     options: [
-      { key: 'A', text: '$\\sin\\alpha > 0, \\cos\\alpha < 0$' },
-      { key: 'B', text: '$\\sin\\alpha > 0, \\cos\\alpha > 0$' },
-      { key: 'C', text: '$\\sin\\alpha < 0, \\cos\\alpha < 0$' },
-      { key: 'D', text: '$\\sin\\alpha < 0, \\cos\\alpha > 0$' },
+      { id: 0, text: '$\\sin\\alpha > 0, \\cos\\alpha < 0$', isCorrect: false },
+      { id: 1, text: '$\\sin\\alpha > 0, \\cos\\alpha > 0$', isCorrect: false },
+      { id: 2, text: '$\\sin\\alpha < 0, \\cos\\alpha < 0$', isCorrect: true },
+      { id: 3, text: '$\\sin\\alpha < 0, \\cos\\alpha > 0$', isCorrect: false },
     ],
-    correct: 'C',
     explanation:
       '<strong>Lời giải:</strong> Khi $\\pi < \\alpha < \\dfrac{3\\pi}{2}$, điểm $M$ biểu diễn góc $\\alpha$ nằm ở góc phần tư thứ III trên đường tròn lượng giác. Do đó cả hoành độ $\\cos\\alpha < 0$ và tung độ $\\sin\\alpha < 0$.<br><strong>Đáp án đúng: C.</strong>',
   },
@@ -132,12 +118,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Cho góc lượng giác $\\alpha$ thỏa mãn $\\sin\\alpha = -\\dfrac{4}{5}$ và $\\pi < \\alpha < \\dfrac{3\\pi}{2}$. Giá trị của $\\cos\\alpha$ bằng:',
     options: [
-      { key: 'A', text: '$\\dfrac{3}{5}$' },
-      { key: 'B', text: '$-\\dfrac{3}{5}$' },
-      { key: 'C', text: '$-\\dfrac{9}{25}$' },
-      { key: 'D', text: '$\\dfrac{9}{25}$' },
+      { id: 0, text: '$\\dfrac{3}{5}$', isCorrect: false },
+      { id: 1, text: '$-\\dfrac{3}{5}$', isCorrect: true },
+      { id: 2, text: '$-\\dfrac{9}{25}$', isCorrect: false },
+      { id: 3, text: '$\\dfrac{9}{25}$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong> Vì góc $\\alpha$ thuộc góc phần tư III nên $\\cos\\alpha < 0$. Áp dụng hệ thức $\\sin^2\\alpha + \\cos^2\\alpha = 1$: $$\\cos^2\\alpha = 1 - \\sin^2\\alpha = 1 - \\left(-\\dfrac{4}{5}\\right)^2 = \\dfrac{9}{25} \\implies \\cos\\alpha = -\\sqrt{\\dfrac{9}{25}} = -\\dfrac{3}{5}$$<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -149,12 +134,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Trong các khẳng định sau, đẳng thức nào <strong>sai</strong> với mọi góc lượng giác $\\alpha$ làm cho biểu thức có nghĩa?',
     options: [
-      { key: 'A', text: '$\\sin^2\\alpha + \\cos^2\\alpha = 1$' },
-      { key: 'B', text: '$1 + \\tan^2\\alpha = -\\dfrac{1}{\\cos^2\\alpha}$' },
-      { key: 'C', text: '$1 + \\cot^2\\alpha = \\dfrac{1}{\\sin^2\\alpha}$' },
-      { key: 'D', text: '$\\tan\\alpha \\cdot \\cot\\alpha = 1$' },
+      { id: 0, text: '$\\sin^2\\alpha + \\cos^2\\alpha = 1$', isCorrect: false },
+      { id: 1, text: '$1 + \\tan^2\\alpha = -\\dfrac{1}{\\cos^2\\alpha}$', isCorrect: true },
+      { id: 2, text: '$1 + \\cot^2\\alpha = \\dfrac{1}{\\sin^2\\alpha}$', isCorrect: false },
+      { id: 3, text: '$\\tan\\alpha \\cdot \\cot\\alpha = 1$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong> Hệ thức lượng giác cơ bản đúng là $1 + \\tan^2\\alpha = \\dfrac{1}{\\cos^2\\alpha}$. Khẳng định $1 + \\tan^2\\alpha = -\\dfrac{1}{\\cos^2\\alpha}$ có dấu âm ở vế phải nên là khẳng định sai.<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -166,12 +150,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Rút gọn biểu thức $P = \\cos(\\pi - \\alpha) + \\sin\\left(\\dfrac{\\pi}{2} - \\alpha\\right) - \\cos(-\\alpha)$ ta được:',
     options: [
-      { key: 'A', text: '$P = \\cos\\alpha$' },
-      { key: 'B', text: '$P = -\\cos\\alpha$' },
-      { key: 'C', text: '$P = 3\\cos\\alpha$' },
-      { key: 'D', text: '$P = -\\sin\\alpha$' },
+      { id: 0, text: '$P = \\cos\\alpha$', isCorrect: false },
+      { id: 1, text: '$P = -\\cos\\alpha$', isCorrect: true },
+      { id: 2, text: '$P = 3\\cos\\alpha$', isCorrect: false },
+      { id: 3, text: '$P = -\\sin\\alpha$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong> Sử dụng công thức các góc liên quan đặc biệt:<br>- $\\cos(\\pi - \\alpha) = -\\cos\\alpha$<br>- $\\sin\\left(\\dfrac{\\pi}{2} - \\alpha\\right) = \\cos\\alpha$<br>- $\\cos(-\\alpha) = \\cos\\alpha$<br>Thay vào $P$: $$P = -\\cos\\alpha + \\cos\\alpha - \\cos\\alpha = -\\cos\\alpha$$<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -183,12 +166,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Cho góc lượng giác $\\alpha$ thỏa mãn $\\sin\\alpha - \\cos\\alpha = \\dfrac{1}{3}$. Giá trị của tích $\\sin\\alpha \\cos\\alpha$ bằng:',
     options: [
-      { key: 'A', text: '$\\dfrac{2}{9}$' },
-      { key: 'B', text: '$\\dfrac{4}{9}$' },
-      { key: 'C', text: '$-\\dfrac{4}{9}$' },
-      { key: 'D', text: '$\\dfrac{8}{9}$' },
+      { id: 0, text: '$\\dfrac{2}{9}$', isCorrect: false },
+      { id: 1, text: '$\\dfrac{4}{9}$', isCorrect: true },
+      { id: 2, text: '$-\\dfrac{4}{9}$', isCorrect: false },
+      { id: 3, text: '$\\dfrac{8}{9}$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong> Bình phương hai vế của đẳng thức $\\sin\\alpha - \\cos\\alpha = \\dfrac{1}{3}$: $$(\\sin\\alpha - \\cos\\alpha)^2 = \\left(\\dfrac{1}{3}\\right)^2 \\iff \\sin^2\\alpha - 2\\sin\\alpha \\cos\\alpha + \\cos^2\\alpha = \\dfrac{1}{9}$$ $$\\iff 1 - 2\\sin\\alpha \\cos\\alpha = \\dfrac{1}{9} \\iff 2\\sin\\alpha \\cos\\alpha = \\dfrac{8}{9} \\iff \\sin\\alpha \\cos\\alpha = \\dfrac{4}{9}$$<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -200,12 +182,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Kim phút của một đồng hồ có chiều dài $10\\text{ cm}$. Trong khoảng thời gian $20\\text{ phút}$, đầu kim phút di chuyển được một quãng đường bằng:',
     options: [
-      { key: 'A', text: '$\\dfrac{10\\pi}{3}\\text{ cm}$' },
-      { key: 'B', text: '$\\dfrac{20\\pi}{3}\\text{ cm}$' },
-      { key: 'C', text: '$20\\pi\\text{ cm}$' },
-      { key: 'D', text: '$\\dfrac{40\\pi}{3}\\text{ cm}$' },
+      { id: 0, text: '$\\dfrac{10\\pi}{3}\\text{ cm}$', isCorrect: false },
+      { id: 1, text: '$\\dfrac{20\\pi}{3}\\text{ cm}$', isCorrect: true },
+      { id: 2, text: '$20\\pi\\text{ cm}$', isCorrect: false },
+      { id: 3, text: '$\\dfrac{40\\pi}{3}\\text{ cm}$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong><br>- Kim phút quay hết 1 vòng ($2\\pi\\text{ rad}$) trong $60\\text{ phút}$.<br>- Trong $20\\text{ phút}$, kim phút quay được góc lượng giác có số đo: $$\\alpha = \\dfrac{20}{60} \\times 2\\pi = \\dfrac{2\\pi}{3}\\text{ (rad)}$$<br>- Quãng đường đầu kim phút di chuyển: $$l = R \\cdot \\alpha = 10 \\times \\dfrac{2\\pi}{3} = \\dfrac{20\\pi}{3}\\text{ (cm)}$$<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -219,12 +200,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Trong các công thức cộng dưới đây, công thức nào <strong>đúng</strong>?',
     options: [
-      { key: 'A', text: '$\\sin(a-b) = \\sin a \\cos b + \\cos a \\sin b$' },
-      { key: 'B', text: '$\\sin(a-b) = \\sin a \\cos b - \\cos a \\sin b$' },
-      { key: 'C', text: '$\\cos(a-b) = \\cos a \\cos b - \\sin a \\sin b$' },
-      { key: 'D', text: '$\\cos(a+b) = \\cos a \\cos b + \\sin a \\sin b$' },
+      { id: 0, text: '$\\sin(a-b) = \\sin a \\cos b + \\cos a \\sin b$', isCorrect: false },
+      { id: 1, text: '$\\sin(a-b) = \\sin a \\cos b - \\cos a \\sin b$', isCorrect: true },
+      { id: 2, text: '$\\cos(a-b) = \\cos a \\cos b - \\sin a \\sin b$', isCorrect: false },
+      { id: 3, text: '$\\cos(a+b) = \\cos a \\cos b + \\sin a \\sin b$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong> Theo công thức cộng đối với sin của một hiệu: $\\sin(a-b) = \\sin a \\cos b - \\cos a \\sin b$.<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -236,12 +216,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Biết $\\cos a = -\\dfrac{1}{3}$. Giá trị của $\\cos 2a$ bằng:',
     options: [
-      { key: 'A', text: '$\\dfrac{7}{9}$' },
-      { key: 'B', text: '$-\\dfrac{7}{9}$' },
-      { key: 'C', text: '$\\dfrac{2}{9}$' },
-      { key: 'D', text: '$-\\dfrac{2}{9}$' },
+      { id: 0, text: '$\\dfrac{7}{9}$', isCorrect: false },
+      { id: 1, text: '$-\\dfrac{7}{9}$', isCorrect: true },
+      { id: 2, text: '$\\dfrac{2}{9}$', isCorrect: false },
+      { id: 3, text: '$-\\dfrac{2}{9}$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong> Sử dụng công thức nhân đôi của cosin theo cosin: $$\\cos 2a = 2\\cos^2 a - 1 = 2 \\cdot \\left(-\\dfrac{1}{3}\\right)^2 - 1 = \\dfrac{2}{9} - 1 = -\\dfrac{7}{9}$$<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -253,12 +232,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Khẳng định nào sau đây <strong>đúng</strong> về công thức biến đổi tích thành tổng?',
     options: [
-      { key: 'A', text: '$\\cos a \\cos b = \\dfrac{1}{2}[\\cos(a-b) + \\cos(a+b)]$' },
-      { key: 'B', text: '$\\cos a \\cos b = \\dfrac{1}{2}[\\cos(a-b) - \\cos(a+b)]$' },
-      { key: 'C', text: '$\\sin a \\sin b = \\dfrac{1}{2}[\\cos(a-b) + \\cos(a+b)]$' },
-      { key: 'D', text: '$\\sin a \\cos b = \\dfrac{1}{2}[\\sin(a-b) - \\sin(a+b)]$' },
+      { id: 0, text: '$\\cos a \\cos b = \\dfrac{1}{2}[\\cos(a-b) + \\cos(a+b)]$', isCorrect: true },
+      { id: 1, text: '$\\cos a \\cos b = \\dfrac{1}{2}[\\cos(a-b) - \\cos(a+b)]$', isCorrect: false },
+      { id: 2, text: '$\\sin a \\sin b = \\dfrac{1}{2}[\\cos(a-b) + \\cos(a+b)]$', isCorrect: false },
+      { id: 3, text: '$\\sin a \\cos b = \\dfrac{1}{2}[\\sin(a-b) - \\sin(a+b)]$', isCorrect: false },
     ],
-    correct: 'A',
     explanation:
       '<strong>Lời giải:</strong> Theo công thức biến đổi tích thành tổng: $\\cos a \\cos b = \\dfrac{1}{2}[\\cos(a-b) + \\cos(a+b)]$.<br><strong>Đáp án đúng: A.</strong>',
   },
@@ -270,12 +248,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Rút gọn biểu thức $M = \\dfrac{\\sin 4x + \\sin 2x}{\\cos 4x + \\cos 2x}$ (với điều kiện biểu thức xác định) ta được:',
     options: [
-      { key: 'A', text: '$M = \\tan 2x$' },
-      { key: 'B', text: '$M = \\tan 3x$' },
-      { key: 'C', text: '$M = \\tan 6x$' },
-      { key: 'D', text: '$M = \\cot 3x$' },
+      { id: 0, text: '$M = \\tan 2x$', isCorrect: false },
+      { id: 1, text: '$M = \\tan 3x$', isCorrect: true },
+      { id: 2, text: '$M = \\tan 6x$', isCorrect: false },
+      { id: 3, text: '$M = \\cot 3x$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong> Áp dụng công thức biến đổi tổng thành tích: $$\\sin 4x + \\sin 2x = 2\\sin 3x \\cos x$$ $$\\cos 4x + \\cos 2x = 2\\cos 3x \\cos x$$ Suy ra: $$M = \\dfrac{2\\sin 3x \\cos x}{2\\cos 3x \\cos x} = \\dfrac{\\sin 3x}{\\cos 3x} = \\tan 3x$$<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -287,12 +264,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Không sử dụng máy tính cầm tay, tính giá trị biểu thức $A = \\sin 105^\\circ \\cdot \\sin 15^\\circ$.',
     options: [
-      { key: 'A', text: '$\\dfrac{1}{2}$' },
-      { key: 'B', text: '$\\dfrac{1}{4}$' },
-      { key: 'C', text: '$\\dfrac{\\sqrt{3}}{4}$' },
-      { key: 'D', text: '$\\dfrac{\\sqrt{2}}{4}$' },
+      { id: 0, text: '$\\dfrac{1}{2}$', isCorrect: false },
+      { id: 1, text: '$\\dfrac{1}{4}$', isCorrect: true },
+      { id: 2, text: '$\\dfrac{\\sqrt{3}}{4}$', isCorrect: false },
+      { id: 3, text: '$\\dfrac{\\sqrt{2}}{4}$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong> Biến đổi tích thành tổng: $$A = \\sin 105^\\circ \\sin 15^\\circ = \\dfrac{1}{2}[\\cos(105^\\circ - 15^\\circ) - \\cos(105^\\circ + 15^\\circ)] = \\dfrac{1}{2}[\\cos 90^\\circ - \\cos 120^\\circ] = \\dfrac{1}{2}\\left(0 - \\left(-\\dfrac{1}{2}\\right)\\right) = \\dfrac{1}{4}$$<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -304,12 +280,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Một thiết bị truyền tín hiệu phát ra hai sóng âm có dạng $f_1(t) = 4\\sin t$ và $f_2(t) = 4\\cos t$ ($t$ tính bằng giây). Âm kết hợp có dạng $f(t) = f_1(t) + f_2(t) = A\\sin(t + \\varphi)$ với $A > 0$ và $-\\pi \\le \\varphi \\le \\pi$. Biên độ âm $A$ và pha ban đầu $\\varphi$ lần lượt bằng:',
     options: [
-      { key: 'A', text: '$A = 4\\sqrt{2}, \\varphi = \\dfrac{\\pi}{4}$' },
-      { key: 'B', text: '$A = 8, \\varphi = \\dfrac{\\pi}{4}$' },
-      { key: 'C', text: '$A = 4\\sqrt{2}, \\varphi = -\\dfrac{\\pi}{4}$' },
-      { key: 'D', text: '$A = 4, \\varphi = \\dfrac{\\pi}{2}$' },
+      { id: 0, text: '$A = 4\\sqrt{2}, \\varphi = \\dfrac{\\pi}{4}$', isCorrect: true },
+      { id: 1, text: '$A = 8, \\varphi = \\dfrac{\\pi}{4}$', isCorrect: false },
+      { id: 2, text: '$A = 4\\sqrt{2}, \\varphi = -\\dfrac{\\pi}{4}$', isCorrect: false },
+      { id: 3, text: '$A = 4, \\varphi = \\dfrac{\\pi}{2}$', isCorrect: false },
     ],
-    correct: 'A',
     explanation:
       '<strong>Lời giải:</strong> $$f(t) = 4\\sin t + 4\\cos t = 4\\sqrt{2}\\left(\\dfrac{1}{\\sqrt{2}}\\sin t + \\dfrac{1}{\\sqrt{2}}\\cos t\\right) = 4\\sqrt{2}\\sin\\left(t + \\dfrac{\\pi}{4}\\right)$$ Suy ra biên độ $A = 4\\sqrt{2}$ và pha ban đầu $\\varphi = \\dfrac{\\pi}{4}$.<br><strong>Đáp án đúng: A.</strong>',
   },
@@ -323,12 +298,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Tập xác định $D$ của hàm số $y = \\cot\\left(x + \\dfrac{\\pi}{6}\\right)$ là:',
     options: [
-      { key: 'A', text: '$D = \\mathbb{R} \\setminus \\left\\{\\dfrac{\\pi}{6} + k\\pi \\;\\middle|\\; k \\in \\mathbb{Z}\\right\\}$' },
-      { key: 'B', text: '$D = \\mathbb{R} \\setminus \\left\\{-\\dfrac{\\pi}{6} + k\\pi \\;\\middle|\\; k \\in \\mathbb{Z}\\right\\}$' },
-      { key: 'C', text: '$D = \\mathbb{R} \\setminus \\left\\{-\\dfrac{\\pi}{6} + k2\\pi \\;\\middle|\\; k \\in \\mathbb{Z}\\right\\}$' },
-      { key: 'D', text: '$D = \\mathbb{R} \\setminus \\left\\{k\\pi \\;\\middle|\\; k \\in \\mathbb{Z}\\right\\}$' },
+      { id: 0, text: '$D = \\mathbb{R} \\setminus \\left\\{\\dfrac{\\pi}{6} + k\\pi \\;\\middle|\\; k \\in \\mathbb{Z}\\right\\}$', isCorrect: false },
+      { id: 1, text: '$D = \\mathbb{R} \\setminus \\left\\{-\\dfrac{\\pi}{6} + k\\pi \\;\\middle|\\; k \\in \\mathbb{Z}\\right\\}$', isCorrect: true },
+      { id: 2, text: '$D = \\mathbb{R} \\setminus \\left\\{-\\dfrac{\\pi}{6} + k2\\pi \\;\\middle|\\; k \\in \\mathbb{Z}\\right\\}$', isCorrect: false },
+      { id: 3, text: '$D = \\mathbb{R} \\setminus \\left\\{k\\pi \\;\\middle|\\; k \\in \\mathbb{Z}\\right\\}$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong> Hàm số $y = \\cot\\left(x + \\dfrac{\\pi}{6}\\right)$ xác định khi và chỉ khi: $$x + \\dfrac{\\pi}{6} \\ne k\\pi \\iff x \\ne -\\dfrac{\\pi}{6} + k\\pi \\quad (k \\in \\mathbb{Z})$$<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -340,12 +314,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Tập giá trị $T$ của hàm số $y = 3\\cos\\left(x - \\dfrac{\\pi}{6}\\right) + 2$ là:',
     options: [
-      { key: 'A', text: '$T = [-3; 3]$' },
-      { key: 'B', text: '$T = [-1; 5]$' },
-      { key: 'C', text: '$T = [-5; 1]$' },
-      { key: 'D', text: '$T = [-1; 3]$' },
+      { id: 0, text: '$T = [-3; 3]$', isCorrect: false },
+      { id: 1, text: '$T = [-1; 5]$', isCorrect: true },
+      { id: 2, text: '$T = [-5; 1]$', isCorrect: false },
+      { id: 3, text: '$T = [-1; 3]$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong> Vì $-1 \\le \\cos\\left(x - \\dfrac{\\pi}{6}\\right) \\le 1 \\implies -3 \\le 3\\cos\\left(x - \\dfrac{\\pi}{6}\\right) \\le 3 \\implies -1 \\le y \\le 5$. Do đó $T = [-1; 5]$.<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -357,12 +330,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Hàm số nào dưới đây là hàm số lẻ trên tập xác định của nó?',
     options: [
-      { key: 'A', text: '$y = \\cos x$' },
-      { key: 'B', text: '$y = x \\cos x$' },
-      { key: 'C', text: '$y = x \\sin x$' },
-      { key: 'D', text: '$y = \\cos 2x$' },
+      { id: 0, text: '$y = \\cos x$', isCorrect: false },
+      { id: 1, text: '$y = x \\cos x$', isCorrect: true },
+      { id: 2, text: '$y = x \\sin x$', isCorrect: false },
+      { id: 3, text: '$y = \\cos 2x$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong> Xét $f(x) = x \\cos x$, có tập xác định $D = \\mathbb{R}$. Với mọi $x \\in \\mathbb{R}$: $$f(-x) = (-x)\\cos(-x) = -x \\cos x = -f(x)$$ Do đó $y = x \\cos x$ là hàm số lẻ.<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -374,12 +346,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Chu kỳ tuần hoàn $T$ của hàm số $y = \\sin\\left(3x + \\dfrac{\\pi}{3}\\right)$ bằng:',
     options: [
-      { key: 'A', text: '$T = 2\\pi$' },
-      { key: 'B', text: '$T = \\pi$' },
-      { key: 'C', text: '$T = \\dfrac{2\\pi}{3}$' },
-      { key: 'D', text: '$T = \\dfrac{\\pi}{3}$' },
+      { id: 0, text: '$T = 2\\pi$', isCorrect: false },
+      { id: 1, text: '$T = \\pi$', isCorrect: false },
+      { id: 2, text: '$T = \\dfrac{2\\pi}{3}$', isCorrect: true },
+      { id: 3, text: '$T = \\dfrac{\\pi}{3}$', isCorrect: false },
     ],
-    correct: 'C',
     explanation:
       '<strong>Lời giải:</strong> Hàm số $y = \\sin(ax + b)$ tuần hoàn với chu kỳ $T = \\dfrac{2\\pi}{|a|}$. Áp dụng với $a = 3 \\implies T = \\dfrac{2\\pi}{3}$.<br><strong>Đáp án đúng: C.</strong>',
   },
@@ -391,12 +362,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Mệnh đề nào sau đây <strong>đúng</strong> khi nói về sự biến thiên của hàm số $y = \\cos x$?',
     options: [
-      { key: 'A', text: 'Đồng biến trên khoảng $(0; \\pi)$' },
-      { key: 'B', text: 'Nghịch biến trên khoảng $(0; \\pi)$' },
-      { key: 'C', text: 'Nghịch biến trên khoảng $(\\pi; 2\\pi)$' },
-      { key: 'D', text: 'Đồng biến trên toàn bộ khoảng $(0; 2\\pi)$' },
+      { id: 0, text: 'Đồng biến trên khoảng $(0; \\pi)$', isCorrect: false },
+      { id: 1, text: 'Nghịch biến trên khoảng $(0; \\pi)$', isCorrect: true },
+      { id: 2, text: 'Nghịch biến trên khoảng $(\\pi; 2\\pi)$', isCorrect: false },
+      { id: 3, text: 'Đồng biến trên toàn bộ khoảng $(0; 2\\pi)$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong> Dựa vào đồ thị hàm số $y = \\cos x$: khi $x$ tăng từ $0$ đến $\\pi$ thì $\\cos x$ giảm từ $1$ xuống $-1$. Do đó hàm số nghịch biến trên khoảng $(0; \\pi)$.<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -408,12 +378,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Giá trị lớn nhất $M$ và giá trị nhỏ nhất $m$ của hàm số $y = 2\\sin^2 x + 3\\cos x + 1$ là:',
     options: [
-      { key: 'A', text: '$M = 4, m = -1$' },
-      { key: 'B', text: '$M = \\dfrac{33}{8}, m = -2$' },
-      { key: 'C', text: '$M = \\dfrac{25}{8}, m = -1$' },
-      { key: 'D', text: '$M = 3, m = -2$' },
+      { id: 0, text: '$M = 4, m = -1$', isCorrect: false },
+      { id: 1, text: '$M = \\dfrac{33}{8}, m = -2$', isCorrect: true },
+      { id: 2, text: '$M = \\dfrac{25}{8}, m = -1$', isCorrect: false },
+      { id: 3, text: '$M = 3, m = -2$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong> Biến đổi hàm số theo $\\cos x$: $$y = 2(1 - \\cos^2 x) + 3\\cos x + 1 = -2\\cos^2 x + 3\\cos x + 3$$ Đặt $t = \\cos x$ với $t \\in [-1; 1]$. Xét tam thức $g(t) = -2t^2 + 3t + 3$:<br>- Đỉnh parabol $t_0 = \\dfrac{3}{4} \\in [-1; 1] \\implies g\\left(\\dfrac{3}{4}\\right) = -2\\left(\\dfrac{9}{16}\\right) + 3\\left(\\dfrac{3}{4}\\right) + 3 = \\dfrac{33}{8}$.<br>- Giá trị tại biên: $g(-1) = -2$, $g(1) = 4$.<br>Do đó giá trị lớn nhất $M = \\dfrac{33}{8}$ và giá trị nhỏ nhất $m = -2$.<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -425,12 +394,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Mực nước tại một cửa sông thay đổi theo thời gian $t$ (giờ, $0 \\le t \\le 24$) trong ngày được mô hình hóa bởi hàm số $h(t) = 3\\cos\\left(\\dfrac{\\pi t}{12}\\right) + 8$ (mét). Mực nước cửa sông đạt giá trị cao nhất bằng bao nhiêu mét và vào thời điểm mấy giờ?',
     options: [
-      { key: 'A', text: '$8\\text{ m}$ vào lúc $6\\text{ giờ}$ và $18\\text{ giờ}$' },
-      { key: 'B', text: '$11\\text{ m}$ vào lúc $0\\text{ giờ}$ và $24\\text{ giờ}$' },
-      { key: 'C', text: '$11\\text{ m}$ vào lúc $12\\text{ giờ}$' },
-      { key: 'D', text: '$8\\text{ m}$ vào lúc $12\\text{ giờ}$' },
+      { id: 0, text: '$8\\text{ m}$ vào lúc $6\\text{ giờ}$ và $18\\text{ giờ}$', isCorrect: false },
+      { id: 1, text: '$11\\text{ m}$ vào lúc $0\\text{ giờ}$ và $24\\text{ giờ}$', isCorrect: true },
+      { id: 2, text: '$11\\text{ m}$ vào lúc $12\\text{ giờ}$', isCorrect: false },
+      { id: 3, text: '$8\\text{ m}$ vào lúc $12\\text{ giờ}$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong> Mực nước cao nhất khi $\\cos\\left(\\dfrac{\\pi t}{12}\\right) = 1 \\implies h_{\\max} = 3(1) + 8 = 11\\text{ m}$. $$\\cos\\left(\\dfrac{\\pi t}{12}\\right) = 1 \\iff \\dfrac{\\pi t}{12} = k2\\pi \\iff t = 24k \\quad (k \\in \\mathbb{Z})$$ Với $0 \\le t \\le 24 \\implies t = 0\\text{ giờ}$ và $t = 24\\text{ giờ}$.<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -444,12 +412,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Phương trình lượng giác $\\cos x = m$ (với $m$ là tham số thực) có nghiệm khi và chỉ khi:',
     options: [
-      { key: 'A', text: '$m \\in (-1; 1)$' },
-      { key: 'B', text: '$m \\in [-1; 1]$' },
-      { key: 'C', text: '$m \\in \\mathbb{R}$' },
-      { key: 'D', text: '$m \\le 1$' },
+      { id: 0, text: '$m \\in (-1; 1)$', isCorrect: false },
+      { id: 1, text: '$m \\in [-1; 1]$', isCorrect: true },
+      { id: 2, text: '$m \\in \\mathbb{R}$', isCorrect: false },
+      { id: 3, text: '$m \\le 1$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong> Tập giá trị của hàm cosin là $[-1; 1]$ nên phương trình $\\cos x = m$ có nghiệm $\\iff m \\in [-1; 1]$.<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -461,12 +428,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Tất cả các nghiệm của phương trình $\\cos x = \\cos\\dfrac{\\pi}{4}$ là:',
     options: [
-      { key: 'A', text: '$x = \\pm \\dfrac{\\pi}{4} + k2\\pi \\quad (k \\in \\mathbb{Z})$' },
-      { key: 'B', text: '$x = \\dfrac{\\pi}{4} + k2\\pi \\quad (k \\in \\mathbb{Z})$' },
-      { key: 'C', text: '$x = \\pm \\dfrac{\\pi}{4} + k\\pi \\quad (k \\in \\mathbb{Z})$' },
-      { key: 'D', text: '$x = \\dfrac{\\pi}{4} + k\\pi \\quad (k \\in \\mathbb{Z})$' },
+      { id: 0, text: '$x = \\pm \\dfrac{\\pi}{4} + k2\\pi \\quad (k \\in \\mathbb{Z})$', isCorrect: true },
+      { id: 1, text: '$x = \\dfrac{\\pi}{4} + k2\\pi \\quad (k \\in \\mathbb{Z})$', isCorrect: false },
+      { id: 2, text: '$x = \\pm \\dfrac{\\pi}{4} + k\\pi \\quad (k \\in \\mathbb{Z})$', isCorrect: false },
+      { id: 3, text: '$x = \\dfrac{\\pi}{4} + k\\pi \\quad (k \\in \\mathbb{Z})$', isCorrect: false },
     ],
-    correct: 'A',
     explanation:
       '<strong>Lời giải:</strong> Công thức nghiệm cosin cơ bản: $\\cos x = \\cos\\alpha \\iff x = \\pm \\alpha + k2\\pi \\quad (k \\in \\mathbb{Z})$.<br><strong>Đáp án đúng: A.</strong>',
   },
@@ -478,12 +444,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Tất cả các nghiệm của phương trình $\\cot x = \\dfrac{1}{\\sqrt{3}}$ là:',
     options: [
-      { key: 'A', text: '$x = \\dfrac{\\pi}{6} + k\\pi \\quad (k \\in \\mathbb{Z})$' },
-      { key: 'B', text: '$x = \\dfrac{\\pi}{3} + k\\pi \\quad (k \\in \\mathbb{Z})$' },
-      { key: 'C', text: '$x = \\dfrac{\\pi}{3} + k2\\pi \\quad (k \\in \\mathbb{Z})$' },
-      { key: 'D', text: '$x = \\pm \\dfrac{\\pi}{3} + k\\pi \\quad (k \\in \\mathbb{Z})$' },
+      { id: 0, text: '$x = \\dfrac{\\pi}{6} + k\\pi \\quad (k \\in \\mathbb{Z})$', isCorrect: false },
+      { id: 1, text: '$x = \\dfrac{\\pi}{3} + k\\pi \\quad (k \\in \\mathbb{Z})$', isCorrect: true },
+      { id: 2, text: '$x = \\dfrac{\\pi}{3} + k2\\pi \\quad (k \\in \\mathbb{Z})$', isCorrect: false },
+      { id: 3, text: '$x = \\pm \\dfrac{\\pi}{3} + k\\pi \\quad (k \\in \\mathbb{Z})$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong> $\\cot x = \\dfrac{1}{\\sqrt{3}} = \\cot\\dfrac{\\pi}{3} \\iff x = \\dfrac{\\pi}{3} + k\\pi \\quad (k \\in \\mathbb{Z})$.<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -495,12 +460,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Tập nghiệm của phương trình $\\sin\\left(2x + \\dfrac{\\pi}{3}\\right) = 0$ là:',
     options: [
-      { key: 'A', text: '$S = \\left\\{\\dfrac{\\pi}{6} + \\dfrac{k\\pi}{2} \\;\\middle|\\; k \\in \\mathbb{Z}\\right\\}$' },
-      { key: 'B', text: '$S = \\left\\{-\\dfrac{\\pi}{6} + \\dfrac{k\\pi}{2} \\;\\middle|\\; k \\in \\mathbb{Z}\\right\\}$' },
-      { key: 'C', text: '$S = \\left\\{-\\dfrac{\\pi}{3} + k\\pi \\;\\middle|\\; k \\in \\mathbb{Z}\\right\\}$' },
-      { key: 'D', text: '$S = \\left\\{-\\dfrac{\\pi}{6} + k\\pi \\;\\middle|\\; k \\in \\mathbb{Z}\\right\\}$' },
+      { id: 0, text: '$S = \\left\\{\\dfrac{\\pi}{6} + \\dfrac{k\\pi}{2} \\;\\middle|\\; k \\in \\mathbb{Z}\\right\\}$', isCorrect: false },
+      { id: 1, text: '$S = \\left\\{-\\dfrac{\\pi}{6} + \\dfrac{k\\pi}{2} \\;\\middle|\\; k \\in \\mathbb{Z}\\right\\}$', isCorrect: true },
+      { id: 2, text: '$S = \\left\\{-\\dfrac{\\pi}{3} + k\\pi \\;\\middle|\\; k \\in \\mathbb{Z}\\right\\}$', isCorrect: false },
+      { id: 3, text: '$S = \\left\\{-\\dfrac{\\pi}{6} + k\\pi \\;\\middle|\\; k \\in \\mathbb{Z}\\right\\}$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong> $$\\sin\\left(2x + \\dfrac{\\pi}{3}\\right) = 0 \\iff 2x + \\dfrac{\\pi}{3} = k\\pi \\iff 2x = -\\dfrac{\\pi}{3} + k\\pi \\iff x = -\\dfrac{\\pi}{6} + \\dfrac{k\\pi}{2} \\quad (k \\in \\mathbb{Z})$$<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -512,12 +476,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Nghiệm của phương trình $\\cos 2x = \\cos x$ là:',
     options: [
-      { key: 'A', text: '$x = k2\\pi \\quad (k \\in \\mathbb{Z})$' },
-      { key: 'B', text: '$x = \\dfrac{k2\\pi}{3} \\quad (k \\in \\mathbb{Z})$' },
-      { key: 'C', text: '$x = \\dfrac{\\pi}{3} + \\dfrac{k2\\pi}{3} \\quad (k \\in \\mathbb{Z})$' },
-      { key: 'D', text: '$x = k\\pi \\quad (k \\in \\mathbb{Z})$' },
+      { id: 0, text: '$x = k2\\pi \\quad (k \\in \\mathbb{Z})$', isCorrect: false },
+      { id: 1, text: '$x = \\dfrac{k2\\pi}{3} \\quad (k \\in \\mathbb{Z})$', isCorrect: true },
+      { id: 2, text: '$x = \\dfrac{\\pi}{3} + \\dfrac{k2\\pi}{3} \\quad (k \\in \\mathbb{Z})$', isCorrect: false },
+      { id: 3, text: '$x = k\\pi \\quad (k \\in \\mathbb{Z})$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong> $$\\cos 2x = \\cos x \\iff \\left[\\begin{array}{l} 2x = x + k2\\pi \\\\ 2x = -x + k2\\pi \\end{array}\\right. \\iff \\left[\\begin{array}{l} x = k2\\pi \\\\ 3x = k2\\pi \\end{array}\\right. \\iff x = \\dfrac{k2\\pi}{3} \\quad (k \\in \\mathbb{Z})$$<br>(do họ $x = k2\\pi$ là tập con của họ $x = \\dfrac{k2\\pi}{3}$).<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -529,12 +492,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Số nghiệm của phương trình $\\sin x = -\\dfrac{\\sqrt{3}}{2}$ trên đoạn $[0; 2\\pi]$ là:',
     options: [
-      { key: 'A', text: '$1$' },
-      { key: 'B', text: '$2$' },
-      { key: 'C', text: '$3$' },
-      { key: 'D', text: '$4$' },
+      { id: 0, text: '$1$', isCorrect: false },
+      { id: 1, text: '$2$', isCorrect: true },
+      { id: 2, text: '$3$', isCorrect: false },
+      { id: 3, text: '$4$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong> $\\sin x = \\sin\\left(-\\dfrac{\\pi}{3}\\right) \\iff \\left[\\begin{array}{l} x = -\\dfrac{\\pi}{3} + k2\\pi \\\\ x = \\dfrac{4\\pi}{3} + k2\\pi \\end{array}\\right. \\quad (k \\in \\mathbb{Z})$.<br>Xét $x \\in [0; 2\\pi]$, chọn $k$ thu được $2$ nghiệm là $x_1 = \\dfrac{4\\pi}{3}$ và $x_2 = \\dfrac{5\\pi}{3}$.<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -546,12 +508,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Tổng tất cả các nghiệm của phương trình $\\tan x - 1 = 0$ thuộc khoảng $(0; 2\\pi)$ bằng:',
     options: [
-      { key: 'A', text: '$\\dfrac{\\pi}{4}$' },
-      { key: 'B', text: '$\\dfrac{5\\pi}{4}$' },
-      { key: 'C', text: '$\\dfrac{3\\pi}{2}$' },
-      { key: 'D', text: '$2\\pi$' },
+      { id: 0, text: '$\\dfrac{\\pi}{4}$', isCorrect: false },
+      { id: 1, text: '$\\dfrac{5\\pi}{4}$', isCorrect: false },
+      { id: 2, text: '$\\dfrac{3\\pi}{2}$', isCorrect: true },
+      { id: 3, text: '$2\\pi$', isCorrect: false },
     ],
-    correct: 'C',
     explanation:
       '<strong>Lời giải:</strong> $\\tan x = 1 \\iff x = \\dfrac{\\pi}{4} + k\\pi \\quad (k \\in \\mathbb{Z})$.<br>Thuộc khoảng $(0; 2\\pi)$ có 2 nghiệm: $x_1 = \\dfrac{\\pi}{4}$ ($k=0$) và $x_2 = \\dfrac{5\\pi}{4}$ ($k=1$).<br>Tổng hai nghiệm là $x_1 + x_2 = \\dfrac{\\pi}{4} + \\dfrac{5\\pi}{4} = \\dfrac{6\\pi}{4} = \\dfrac{3\\pi}{2}$.<br><strong>Đáp án đúng: C.</strong>',
   },
@@ -563,12 +524,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Số điểm biểu diễn các nghiệm của phương trình $\\dfrac{\\sin 2x}{\\sin x} = 0$ trên đường tròn lượng giác là:',
     options: [
-      { key: 'A', text: '$1$' },
-      { key: 'B', text: '$2$' },
-      { key: 'C', text: '$3$' },
-      { key: 'D', text: '$4$' },
+      { id: 0, text: '$1$', isCorrect: false },
+      { id: 1, text: '$2$', isCorrect: true },
+      { id: 2, text: '$3$', isCorrect: false },
+      { id: 3, text: '$4$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong> Điều kiện xác định: $\\sin x \\ne 0 \\iff x \\ne k\\pi \\quad (k \\in \\mathbb{Z})$.<br>Phương trình $\\iff \\sin 2x = 0 \\iff 2\\sin x \\cos x = 0 \\iff \\cos x = 0$ (do $\\sin x \\ne 0$).<br>$$\\cos x = 0 \\iff x = \\dfrac{\\pi}{2} + k\\pi \\quad (k \\in \\mathbb{Z})$$<br>Các nghiệm này thỏa mãn ĐKXĐ. Trên đường tròn lượng giác có đúng $2$ điểm biểu diễn là $B(0;1)$ và $B\'(0;-1)$.<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -580,12 +540,11 @@ const MCQ_QUESTIONS_GK1_TOAN11_DE_B: QuestionMCQ[] = [
     points: 0.3,
     text: 'Tìm tất cả các giá trị thực của tham số $m$ để phương trình $\\sin x = m - 1$ có đúng một nghiệm thuộc khoảng $\\left(0; \\dfrac{\\pi}{2}\\right)$.',
     options: [
-      { key: 'A', text: '$0 < m < 1$' },
-      { key: 'B', text: '$1 < m < 2$' },
-      { key: 'C', text: '$-1 < m < 1$' },
-      { key: 'D', text: '$1 \\le m \\le 2$' },
+      { id: 0, text: '$0 < m < 1$', isCorrect: false },
+      { id: 1, text: '$1 < m < 2$', isCorrect: true },
+      { id: 2, text: '$-1 < m < 1$', isCorrect: false },
+      { id: 3, text: '$1 \\le m \\le 2$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
       '<strong>Lời giải:</strong> Với mọi $x \\in \\left(0; \\dfrac{\\pi}{2}\\right)$, ta có $0 < \\sin x < 1$. Do đó phương trình có nghiệm duy nhất thuộc khoảng khi và chỉ khi: $$0 < m - 1 < 1 \\iff 1 < m < 2$$<br><strong>Đáp án đúng: B.</strong>',
   },
@@ -645,16 +604,18 @@ export default function Toan11GiuaKy1LuongGiac90pDeBPage() {
   const [lopNhom, setLopNhom] = useState<string>('');
 
   // 2. STATE LÀM BÀI & TRẢ LỜI
-  const [mcqAnswers, setMcqAnswers] = useState<Record<string, 'A' | 'B' | 'C' | 'D'>>({});
+  // mcqAnswers lưu id gốc của OptionItem được chọn (ví dụ: { 'gkb1': 0, 'gkb2': 1 })
+  const [mcqAnswers, setMcqAnswers] = useState<Record<string, number>>({});
   const [shortAnswers, setShortAnswers] = useState<Record<string, string>>({});
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   // State lưu danh sách câu hỏi trắc nghiệm đã xáo trộn phương án (Fisher-Yates)
-  const [shuffledMCQQuestions, setShuffledMCQQuestions] = useState<ShuffledQuestionMCQ[]>(() =>
+  // Mỗi câu hỏi chứa options dạng Object [{ id, text, isCorrect }]
+  const [shuffledMCQQuestions, setShuffledMCQQuestions] = useState<QuestionMCQ[]>(() =>
     MCQ_QUESTIONS_GK1_TOAN11_DE_B.map((q) => ({
       ...q,
-      options: q.options.map((opt) => ({ originalKey: opt.key, text: opt.text })),
+      options: q.options.map((opt) => ({ ...opt })),
     }))
   );
 
@@ -702,39 +663,6 @@ export default function Toan11GiuaKy1LuongGiac90pDeBPage() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // 5. TRIGGER KATEX VỚI RENDERMATHINELEMENT
-  useEffect(() => {
-    const triggerKaTeX = () => {
-      if (typeof window !== 'undefined' && (window as any).renderMathInElement) {
-        try {
-          (window as any).renderMathInElement(document.body, {
-            delimiters: [
-              { left: '$$', right: '$$', display: true },
-              { left: '$', right: '$', display: false },
-            ],
-            throwOnError: false,
-          });
-        } catch (e) {
-          console.warn('Lỗi khi render KaTeX:', e);
-        }
-      }
-    };
-
-    triggerKaTeX();
-    const interval = setInterval(() => {
-      if (typeof window !== 'undefined' && (window as any).renderMathInElement) {
-        triggerKaTeX();
-        clearInterval(interval);
-      }
-    }, 200);
-
-    const timeout = setTimeout(() => clearInterval(interval), 3000);
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, [isSubmitted, shuffledMCQQuestions]);
-
   // Tiến độ làm bài
   const answeredMCQCount = Object.keys(mcqAnswers).length;
   const answeredShortCount = Object.values(shortAnswers).filter((v) => v.trim().length > 0).length;
@@ -743,7 +671,8 @@ export default function Toan11GiuaKy1LuongGiac90pDeBPage() {
   const totalAnswered = answeredMCQCount + answeredShortCount;
   const progressPercent = Math.round((totalAnswered / totalQuestions) * 100);
 
-  // 6. XỬ LÝ NỘP BÀI (SUBMIT) & GỬI WEBHOOK GAS / N8N
+  // 5. XỬ LÝ NỘP BÀI (SUBMIT) & GỬI WEBHOOK GAS / N8N
+  // Chấm điểm BẤT BIẾN theo trường isCorrect và ID gốc của đáp án, TUYỆT ĐỐI không dựa vào index hiển thị
   const handleSubmit = async () => {
     if (isSubmitted || isSubmitting) return;
 
@@ -760,16 +689,19 @@ export default function Toan11GiuaKy1LuongGiac90pDeBPage() {
 
     setIsSubmitting(true);
 
-    // Chấm điểm
+    // Chấm điểm trắc nghiệm dựa hoàn toàn trên trường isCorrect của Option được chọn
     let calculatedScore = 0;
     let correctMCQ = 0;
     let correctShort = 0;
     const wrongSkills: string[] = [];
 
-    // Chấm trắc nghiệm (30 câu x 0.3đ = 9.0đ)
     MCQ_QUESTIONS_GK1_TOAN11_DE_B.forEach((q) => {
-      const studentAns = mcqAnswers[q.id];
-      if (studentAns === q.correct) {
+      const studentSelectedId = mcqAnswers[q.id];
+      // Tìm option gốc theo ID mà học sinh đã chọn
+      const chosenOption = q.options.find((opt) => opt.id === studentSelectedId);
+      const isCorrect = chosenOption ? chosenOption.isCorrect : false;
+
+      if (isCorrect) {
         calculatedScore += q.points;
         correctMCQ += 1;
       } else {
@@ -810,7 +742,7 @@ export default function Toan11GiuaKy1LuongGiac90pDeBPage() {
       thoi_gian_lam_phut: thoiGianLamPhut,
       thoi_gian_nop: new Date().toLocaleString('vi-VN'),
       ky_nang_sai: uniqueWrongSkills,
-      dap_an_mcq: mcqAnswers,
+      dap_an_mcq_selected_ids: mcqAnswers,
       dap_an_tu_luan: shortAnswers,
     };
 
@@ -858,7 +790,7 @@ export default function Toan11GiuaKy1LuongGiac90pDeBPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // 7. LÀM LẠI BÀI THI (RESET & RE-SHUFFLE)
+  // 6. LÀM LẠI BÀI THI (RESET & RE-SHUFFLE)
   const handleReset = () => {
     if (window.confirm('Bạn có chắc chắn muốn làm lại bài thi từ đầu? Dữ liệu bài làm hiện tại sẽ bị xóa.')) {
       setMcqAnswers({});
@@ -1092,8 +1024,10 @@ export default function Toan11GiuaKy1LuongGiac90pDeBPage() {
 
           <div className="space-y-4">
             {shuffledMCQQuestions.map((q) => {
-              const selectedAns = mcqAnswers[q.id];
-              const isCorrect = selectedAns === q.correct;
+              const selectedOptId = mcqAnswers[q.id];
+              // Tìm option được học sinh chọn
+              const chosenOption = q.options.find((opt) => opt.id === selectedOptId);
+              const isCorrect = chosenOption ? chosenOption.isCorrect : false;
 
               return (
                 <div
@@ -1103,10 +1037,10 @@ export default function Toan11GiuaKy1LuongGiac90pDeBPage() {
                     isSubmitted
                       ? isCorrect
                         ? 'border-emerald-300 bg-emerald-50/20'
-                        : selectedAns
+                        : selectedOptId !== undefined
                         ? 'border-rose-300 bg-rose-50/20'
                         : 'border-amber-300 bg-amber-50/20'
-                      : selectedAns
+                      : selectedOptId !== undefined
                       ? 'border-sky-300 shadow-sky-50'
                       : 'border-slate-200'
                   }`}
@@ -1135,18 +1069,18 @@ export default function Toan11GiuaKy1LuongGiac90pDeBPage() {
                     )}
                   </div>
 
-                  {/* Nội dung câu hỏi */}
-                  <div
+                  {/* Nội dung câu hỏi (Bọc trong MathContent) */}
+                  <MathContent
+                    content={q.text}
                     className="text-slate-800 font-medium text-sm sm:text-base leading-relaxed mb-4"
-                    dangerouslySetInnerHTML={{ __html: q.text }}
                   />
 
-                  {/* Danh sách 4 phương án (Đã xáo trộn Fisher-Yates) */}
+                  {/* Danh sách 4 phương án (Đã xáo trộn Object theo Fisher-Yates) */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {q.options.map((opt, optIdx) => {
-                      const displayLabel = ['A', 'B', 'C', 'D'][optIdx];
-                      const isOptionSelected = selectedAns === opt.originalKey;
-                      const isOptionCorrect = opt.originalKey === q.correct;
+                    {q.options.map((opt, displayIndex) => {
+                      const displayLabel = ['A', 'B', 'C', 'D'][displayIndex];
+                      const isOptionSelected = selectedOptId === opt.id;
+                      const isOptionCorrect = opt.isCorrect;
 
                       let btnStyle = 'border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300';
                       if (!isSubmitted) {
@@ -1165,19 +1099,19 @@ export default function Toan11GiuaKy1LuongGiac90pDeBPage() {
 
                       return (
                         <button
-                          key={opt.originalKey}
+                          key={opt.id}
                           type="button"
                           disabled={isSubmitted}
                           onClick={() =>
                             setMcqAnswers((prev) => ({
                               ...prev,
-                              [q.id]: opt.originalKey,
+                              [q.id]: opt.id,
                             }))
                           }
                           className={`w-full text-left p-3 rounded-xl border flex items-center gap-3 transition cursor-pointer disabled:cursor-default ${btnStyle}`}
                         >
                           <span
-                            className={`inline-flex items-center justify-center w-7 h-7 rounded-lg text-xs font-bold transition ${
+                            className={`inline-flex items-center justify-center w-7 h-7 rounded-lg text-xs font-bold transition shrink-0 ${
                               isOptionSelected
                                 ? 'bg-sky-600 text-white'
                                 : 'bg-slate-100 text-slate-700'
@@ -1185,24 +1119,21 @@ export default function Toan11GiuaKy1LuongGiac90pDeBPage() {
                           >
                             {displayLabel}
                           </span>
-                          <span
-                            className="text-sm flex-1"
-                            dangerouslySetInnerHTML={{ __html: opt.text }}
-                          />
+                          <MathContent content={opt.text} className="text-sm flex-1" />
                         </button>
                       );
                     })}
                   </div>
 
-                  {/* Lời giải chi tiết sau khi nộp */}
+                  {/* Lời giải chi tiết sau khi nộp (Có đủ overflow-x-auto whitespace-pre-wrap break-words) */}
                   {isSubmitted && (
-                    <div className="mt-4 pt-4 border-t border-slate-100 text-xs sm:text-sm bg-slate-50/80 p-3.5 rounded-xl text-slate-700">
+                    <div className="mt-4 pt-4 border-t border-slate-100 text-xs sm:text-sm bg-slate-50/80 p-3.5 rounded-xl text-slate-700 overflow-x-auto whitespace-pre-wrap break-words">
                       <div className="font-semibold text-slate-900 mb-1 flex items-center gap-1.5">
                         <span className="text-sky-600">💡</span> Lời giải chi tiết:
                       </div>
-                      <div
-                        className="leading-relaxed"
-                        dangerouslySetInnerHTML={{ __html: q.explanation }}
+                      <MathContent
+                        content={q.explanation}
+                        className="overflow-x-auto whitespace-pre-wrap break-words leading-relaxed"
                       />
                     </div>
                   )}
@@ -1265,13 +1196,13 @@ export default function Toan11GiuaKy1LuongGiac90pDeBPage() {
                     )}
                   </div>
 
-                  {/* Đề bài */}
-                  <div
+                  {/* Đề bài bọc trong MathContent */}
+                  <MathContent
+                    content={q.text}
                     className="text-slate-800 font-medium text-sm sm:text-base leading-relaxed mb-4"
-                    dangerouslySetInnerHTML={{ __html: q.text }}
                   />
 
-                  {/* Ô nhập câu trả lời ngắn */}
+                  {/* Ô nhập câu trả lời ngắn - TUYỆT ĐỐI KHÔNG GÁN ĐÁP ÁN VÀO PLACEHOLDER HOẶC DEFAULTVALUE */}
                   <div className="max-w-md">
                     <label
                       htmlFor={`input-${q.id}`}
@@ -1295,15 +1226,15 @@ export default function Toan11GiuaKy1LuongGiac90pDeBPage() {
                     />
                   </div>
 
-                  {/* Lời giải sau khi nộp bài */}
+                  {/* Lời giải sau khi nộp bài (Có đủ overflow-x-auto whitespace-pre-wrap break-words) */}
                   {isSubmitted && (
-                    <div className="mt-4 pt-4 border-t border-slate-100 text-xs sm:text-sm bg-slate-50/80 p-3.5 rounded-xl text-slate-700 space-y-2">
+                    <div className="mt-4 pt-4 border-t border-slate-100 text-xs sm:text-sm bg-slate-50/80 p-3.5 rounded-xl text-slate-700 space-y-2 overflow-x-auto whitespace-pre-wrap break-words">
                       <div className="font-semibold text-emerald-800">
-                        Đáp số chuẩn: <span className="font-bold">{q.correctDisplay}</span>
+                        Đáp số chuẩn: <MathContent content={q.correctDisplay} as="span" className="font-bold" />
                       </div>
-                      <div
-                        className="leading-relaxed"
-                        dangerouslySetInnerHTML={{ __html: q.explanation }}
+                      <MathContent
+                        content={q.explanation}
+                        className="overflow-x-auto whitespace-pre-wrap break-words leading-relaxed"
                       />
                     </div>
                   )}
