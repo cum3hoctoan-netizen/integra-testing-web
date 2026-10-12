@@ -1,40 +1,52 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import MathContent from '@/components/MathContent';
+
+// --- THÔNG TIN TIÊU ĐỀ TRÍCH XUẤT CHÍNH XÁC TỪ MÃ NGUỒN LATEX ---
+const EXAM_TITLE = 'ĐỀ KIỂM TRA MÔN TOÁN LỚP 10 -- ĐỀ B';
+const EXAM_SUBTITLE = 'CHỦ ĐỀ: BẤT PHƯƠNG TRÌNH VÀ HỆ BẤT PHƯƠNG TRÌNH BẬC NHẤT HAI ẨN';
+const EXAM_TIME_NOTE = '(Thời gian làm bài: 45 phút • 12 câu trắc nghiệm + 2 bài Đúng/Sai + 3 câu trả lời ngắn)';
 
 // --- CẤU HÌNH WEBHOOK URL ---
 const GOOGLE_APP_SCRIPT_URL =
   'https://script.google.com/macros/s/AKfycbwFjkENCxOPVJcFo8OmXuLad5kcMEC9_Uu48hF045AO0yC8-TnHivEI0ohfUHZkJQlN/exec';
 const N8N_WEBHOOK_URL = 'http://localhost:5678/webhook-test/cham-diem-integra';
 
-// --- INTERFACES & TYPES ---
-interface Option {
-  key: 'A' | 'B' | 'C' | 'D';
+// --- INTERFACES & TYPES (CHUẨN OBJECT ARRAY VỚI CỜ isCorrect ĐỘNG) ---
+export interface OptionItem {
   text: string;
+  isCorrect: boolean;
 }
 
-interface ShuffledOption {
-  originalKey: 'A' | 'B' | 'C' | 'D';
-  text: string;
-}
-
-interface QuestionMCQ {
+export interface QuestionMCQ {
   id: string;
   number: number;
   type: 'mcq';
   skill: string;
   points: number;
   text: string;
-  options: Option[];
-  correct: 'A' | 'B' | 'C' | 'D';
+  options: OptionItem[];
   explanation: string;
 }
 
-interface ShuffledQuestionMCQ extends Omit<QuestionMCQ, 'options'> {
-  options: ShuffledOption[];
+export interface TFItem {
+  key: 'a' | 'b' | 'c' | 'd';
+  text: string;
+  correct: boolean;
 }
 
-interface QuestionShortAns {
+export interface QuestionTF {
+  id: string;
+  number: number;
+  type: 'tf';
+  skill: string;
+  text: string;
+  items: TFItem[];
+  explanation: string;
+}
+
+export interface QuestionShortAns {
   id: string;
   number: number;
   type: 'shortans';
@@ -47,12 +59,9 @@ interface QuestionShortAns {
   validator: (val: string) => boolean;
 }
 
-// Thuật toán xáo trộn mảng Fisher-Yates (Knuth Shuffle)
-function shuffleOptions(options: Option[]): ShuffledOption[] {
-  const result: ShuffledOption[] = options.map((opt) => ({
-    originalKey: opt.key,
-    text: opt.text,
-  }));
+// Thuật toán xáo trộn mảng Fisher-Yates (Knuth Shuffle) cho mảng Object
+function shuffleOptions(options: OptionItem[]): OptionItem[] {
+  const result: OptionItem[] = options.map((opt) => ({ ...opt }));
   for (let i = result.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [result[i], result[j]] = [result[j], result[i]];
@@ -60,292 +69,295 @@ function shuffleOptions(options: Option[]): ShuffledOption[] {
   return result;
 }
 
+// Thang điểm Bộ GD&ĐT 2025 cho phần Đúng/Sai (tối đa 2.0 điểm/câu)
+function calculateTFPoints(correctCount: number): number {
+  if (correctCount === 1) return 0.2;
+  if (correctCount === 2) return 0.5;
+  if (correctCount === 3) return 1.0;
+  if (correctCount === 4) return 2.0;
+  return 0;
+}
+
 // ==========================================
-// DỮ LIỆU ĐỀ THI TOÁN 10 - ĐỀ B (45 PHÚT)
-// CHỦ ĐỀ: BẤT PHƯƠNG TRÌNH & HỆ BPT BẬC NHẤT HAI ẨN
+// DỮ LIỆU ĐỀ THI GỐC (PARSE TỪ MÃ LATEX)
 // ==========================================
 
-// PHẦN I. TRẮC NGHIỆM NHIỀU LỰA CHỌN (14 CÂU - 7,0 ĐIỂM, 0.5Đ/CÂU)
-const MCQ_QUESTIONS_BPT_DE_B: QuestionMCQ[] = [
+const RAW_MCQ_QUESTIONS: QuestionMCQ[] = [
   {
     id: 'bpt1',
     number: 1,
     type: 'mcq',
-    skill: 'Nhận biết bất phương trình bậc nhất hai ẩn',
-    points: 0.5,
-    text: 'Khẳng định nào sau đây là một bất phương trình bậc nhất hai ẩn?',
+    skill: 'Kiểm tra nghiệm của bất phương trình bậc nhất hai ẩn',
+    points: 0.25,
+    text: 'Cặp số nào sau đây là một nghiệm của bất phương trình $3x - 2y + 4 < 0$?',
     options: [
-      { key: 'A', text: '$3x - 2y < 4$' },
-      { key: 'B', text: '$x + y^2 \\ge 3$' },
-      { key: 'C', text: '$x^2 + y^2 \\le 1$' },
-      { key: 'D', text: '$xy - 2y > 0$' },
+      { text: '$(1; 1)$', isCorrect: false },
+      { text: '$(0; 1)$', isCorrect: false },
+      { text: '$(-1; 2)$', isCorrect: true },
+      { text: '$(2; 0)$', isCorrect: false },
     ],
-    correct: 'A',
     explanation:
-      '<strong>Lời giải:</strong> Bất phương trình bậc nhất hai ẩn $x, y$ có dạng tổng quát là $ax + by < c$ (hoặc $\\le, >, \\ge$), trong đó $a, b, c$ là các số thực cho trước và $a, b$ không đồng thời bằng $0$.<br>Phương án $3x - 2y < 4$ thỏa mãn đúng định nghĩa này.<br><strong>Đáp án đúng: A.</strong>',
+      'Thay cặp số $(-1; 2)$ vào bất phương trình ta được: $3(-1) - 2(2) + 4 = -3 < 0$ (mệnh đề đúng).<br>Các cặp số còn lại khi thay vào đều cho kết quả không thỏa mãn bất phương trình.',
   },
   {
     id: 'bpt2',
     number: 2,
     type: 'mcq',
-    skill: 'Kiểm tra nghiệm của bất phương trình bậc nhất hai ẩn',
-    points: 0.5,
-    text: 'Cặp số nào sau đây là một nghiệm của bất phương trình $3x + 2y - 6 < 0$?',
+    skill: 'Xác định điểm thuộc miền nghiệm của bất phương trình',
+    points: 0.25,
+    text: 'Miền nghiệm của bất phương trình $2x - y \\ge -2$ là nửa mặt phẳng (kể cả đường thẳng $2x - y = -2$) chứa điểm nào dưới đây?',
     options: [
-      { key: 'A', text: '$(1; 1)$' },
-      { key: 'B', text: '$(2; 2)$' },
-      { key: 'C', text: '$(0; 4)$' },
-      { key: 'D', text: '$(3; 0)$' },
+      { text: '$(-2; 1)$', isCorrect: false },
+      { text: '$(0; 0)$', isCorrect: true },
+      { text: '$(-3; 0)$', isCorrect: false },
+      { text: '$(-1; 3)$', isCorrect: false },
     ],
-    correct: 'A',
     explanation:
-      '<strong>Lời giải:</strong> Thay tọa độ $(x; y) = (1; 1)$ vào bất phương trình: $3(1) + 2(1) - 6 = -1 < 0$ (mệnh đề đúng).<br>Do đó, $(1; 1)$ là một nghiệm của bất phương trình đã cho.<br><strong>Đáp án đúng: A.</strong>',
+      'Thay điểm $O(0; 0)$ vào bất phương trình: $2(0) - 0 = 0 \\ge -2$ (đúng). Do đó nửa mặt phẳng miền nghiệm chứa gốc tọa độ $O(0; 0)$.',
   },
   {
     id: 'bpt3',
     number: 3,
     type: 'mcq',
-    skill: 'Xác định điểm thuộc miền nghiệm của bất phương trình',
-    points: 0.5,
-    text: 'Miền nghiệm của bất phương trình $2x + y \\le 5$ chứa điểm nào sau đây?',
+    skill: 'Tìm tham số m để cặp số là nghiệm của bất phương trình',
+    points: 0.25,
+    text: 'Tìm tất cả các giá trị của tham số $m$ để cặp số $(x; y) = (1; -3)$ là một nghiệm của bất phương trình $(2m - 1)x + my - 2 > 0$.',
     options: [
-      { key: 'A', text: '$(1; 2)$' },
-      { key: 'B', text: '$(2; 3)$' },
-      { key: 'C', text: '$(3; 1)$' },
-      { key: 'D', text: '$(0; 6)$' },
+      { text: '$m > -3$', isCorrect: false },
+      { text: '$m < -3$', isCorrect: true },
+      { text: '$m > 3$', isCorrect: false },
+      { text: '$m < 3$', isCorrect: false },
     ],
-    correct: 'A',
     explanation:
-      '<strong>Lời giải:</strong> Thay $(x; y) = (1; 2)$ vào bất phương trình: $2(1) + 2 = 4 \\le 5$ (mệnh đề đúng).<br>Do đó điểm $(1; 2)$ thuộc miền nghiệm của bất phương trình.<br><strong>Đáp án đúng: A.</strong>',
+      'Thay $x = 1, y = -3$ vào bất phương trình ta có:<br>$$(2m - 1)(1) + m(-3) - 2 > 0 \\Leftrightarrow 2m - 1 - 3m - 2 > 0 \\Leftrightarrow -m - 3 > 0 \\Leftrightarrow m < -3.$$',
   },
   {
     id: 'bpt4',
     number: 4,
     type: 'mcq',
-    skill: 'Biểu diễn miền nghiệm của bất phương trình trên mặt phẳng tọa độ',
-    points: 0.5,
-    text: 'Miền nghiệm của bất phương trình $2x + 3y - 6 \\le 0$ trên mặt phẳng tọa độ $Oxy$ là:',
+    skill: 'Kiểm tra nghiệm của hệ bất phương trình bậc nhất hai ẩn',
+    points: 0.25,
+    text: 'Cho hệ bất phương trình $\\begin{cases} 2x - y + 3 \\ge 0 \\\\ x + 3y - 1 > 0 \\end{cases}$. Cặp số nào sau đây là một nghiệm của hệ bất phương trình đã cho?',
     options: [
-      { key: 'A', text: 'Nửa mặt phẳng chứa gốc tọa độ $O(0;0)$ kể cả đường thẳng $d: 2x + 3y - 6 = 0$' },
-      { key: 'B', text: 'Nửa mặt phẳng không chứa gốc tọa độ $O(0;0)$ kể cả đường thẳng $d: 2x + 3y - 6 = 0$' },
-      { key: 'C', text: 'Nửa mặt phẳng chứa gốc tọa độ $O(0;0)$ không kể đường thẳng $d: 2x + 3y - 6 = 0$' },
-      { key: 'D', text: 'Toàn bộ mặt phẳng tọa độ $Oxy$' },
+      { text: '$(0; 0)$', isCorrect: false },
+      { text: '$(1; 1)$', isCorrect: true },
+      { text: '$(-2; 0)$', isCorrect: false },
+      { text: '$(0; -1)$', isCorrect: false },
     ],
-    correct: 'A',
     explanation:
-      '<strong>Lời giải:</strong> Thay $O(0;0)$ vào bất phương trình $2x + 3y - 6 \\le 0$, ta có: $2(0) + 3(0) - 6 = -6 \\le 0$ (mệnh đề đúng).<br>Vậy miền nghiệm là nửa mặt phẳng có bờ là đường thẳng $d: 2x + 3y - 6 = 0$ và chứa gốc tọa độ $O(0;0)$ (kể cả bờ $d$).<br><strong>Đáp án đúng: A.</strong>',
+      'Thay cặp số $(1; 1)$ vào hệ:<br>$\\begin{cases} 2(1) - 1 + 3 = 4 \\ge 0 \\quad (\\text{đúng}) \\\\ 1 + 3(1) - 1 = 3 > 0 \\quad (\\text{đúng}) \\end{cases}$.<br>Vậy $(1; 1)$ là một nghiệm của hệ bất phương trình.',
   },
   {
     id: 'bpt5',
     number: 5,
     type: 'mcq',
-    skill: 'Kiểm tra nghiệm của hệ bất phương trình bậc nhất hai ẩn',
-    points: 0.5,
-    text: 'Cặp số $(x; y) = (1; 2)$ là nghiệm của hệ bất phương trình nào sau đây?',
+    skill: 'Xác định hệ bất phương trình từ miền nghiệm hình học',
+    points: 0.25,
+    text: 'Miền không bị gạch chéo (kể cả các đường biên) được giới hạn bởi ba đường thẳng $d_1: x = 0$, $d_2: x - y = 0$ và $d_3: x + 2y = 4$ biểu diễn miền nghiệm của hệ bất phương trình nào sau đây?',
     options: [
-      { key: 'A', text: '$\\begin{cases} x + 2y - 3 < 0 \\\\ 2x - y > 1 \\end{cases}$' },
-      { key: 'B', text: '$\\begin{cases} 2x - y \\ge 0 \\\\ x + 3y \\le 8 \\end{cases}$' },
-      { key: 'C', text: '$\\begin{cases} x - y > 0 \\\\ 3x + y < 2 \\end{cases}$' },
-      { key: 'D', text: '$\\begin{cases} 2x + y < 2 \\\\ x - 3y > 1 \\end{cases}$' },
+      { text: '$\\begin{cases} x \\ge 0 \\\\ x - y \\ge 0 \\\\ x + 2y \\le 4 \\end{cases}$', isCorrect: false },
+      { text: '$\\begin{cases} x \\ge 0 \\\\ x - y \\le 0 \\\\ x + 2y \\le 4 \\end{cases}$', isCorrect: true },
+      { text: '$\\begin{cases} y \\ge 0 \\\\ x - y \\le 0 \\\\ x + 2y \\ge 4 \\end{cases}$', isCorrect: false },
+      { text: '$\\begin{cases} x \\le 0 \\\\ x - y \\le 0 \\\\ x + 2y \\le 4 \\end{cases}$', isCorrect: false },
     ],
-    correct: 'B',
     explanation:
-      '<strong>Lời giải:</strong> Thay $(x; y) = (1; 2)$ vào hệ ở phương án B:<br>$$\\begin{cases} 2(1) - 2 = 0 \\ge 0 \\quad (\\text{đúng}) \\\\ 1 + 3(2) = 7 \\le 8 \\quad (\\text{đúng}) \\end{cases}$$Do đó $(1; 2)$ là nghiệm của hệ bất phương trình ở phương án B.<br><strong>Đáp án đúng: B.</strong>',
+      'Thử điểm $(0; 1)$ nằm trong miền không bị gạch chéo:<br>$x = 0 \\ge 0$, $0 - 1 = -1 \\le 0$, $0 + 2(1) = 2 \\le 4$.<br>Do đó hệ bất phương trình tương ứng là $\\begin{cases} x \\ge 0 \\\\ x - y \\le 0 \\\\ x + 2y \\le 4 \\end{cases}$.',
   },
   {
     id: 'bpt6',
     number: 6,
     type: 'mcq',
-    skill: 'Nhận biết hệ bất phương trình bậc nhất hai ẩn',
-    points: 0.5,
-    text: 'Hệ bất phương trình nào sau đây là hệ bất phương trình bậc nhất hai ẩn?',
+    skill: 'Xác định tọa độ đỉnh của miền nghiệm tam giác',
+    points: 0.25,
+    text: 'Miền nghiệm của hệ bất phương trình $\\begin{cases} x \\ge 0 \\\\ y \\ge 0 \\\\ 2x + y \\le 4 \\end{cases}$ là một miền tam giác. Tọa độ các đỉnh của tam giác đó là:',
     options: [
-      { key: 'A', text: '$\\begin{cases} 3x - y + 2 \\ge 0 \\\\ 2x + 5y < 7 \\end{cases}$' },
-      { key: 'B', text: '$\\begin{cases} x^2 + y \\le 1 \\\\ x - 2y > 3 \\end{cases}$' },
-      { key: 'C', text: '$\\begin{cases} x + y > 0 \\\\ x^2 + y^2 \\le 4 \\end{cases}$' },
-      { key: 'D', text: '$\\begin{cases} 2x - y^2 < 0 \\\\ x + 3y \\ge 1 \\end{cases}$' },
+      { text: '$(0;0), (2;0), (0;4)$', isCorrect: true },
+      { text: '$(0;0), (4;0), (0;2)$', isCorrect: false },
+      { text: '$(0;0), (2;2), (0;4)$', isCorrect: false },
+      { text: '$(1;1), (2;0), (0;4)$', isCorrect: false },
     ],
-    correct: 'A',
     explanation:
-      '<strong>Lời giải:</strong> Hệ bất phương trình bậc nhất hai ẩn là hệ gồm hai hay nhiều bất phương trình bậc nhất hai ẩn.<br>Phương án A gồm hai bất phương trình bậc nhất hai ẩn $3x - y + 2 \\ge 0$ và $2x + 5y < 7$.<br><strong>Đáp án đúng: A.</strong>',
+      'Các đường ranh giới là $x = 0$ (trục $Oy$), $y = 0$ (trục $Ox$) và $2x + y = 4$.<br>Giao điểm của từng cặp đường thẳng là $(0;0)$, $(2;0)$, $(0;4)$.',
   },
   {
     id: 'bpt7',
     number: 7,
     type: 'mcq',
-    skill: 'Hình dạng hình học của miền nghiệm hệ bất phương trình',
-    points: 0.5,
-    text: 'Miền nghiệm của hệ bất phương trình $\\begin{cases} x \\ge 0 \\\\ y \\ge 0 \\\\ x + 2y \\le 4 \\end{cases}$ trên mặt phẳng $Oxy$ có dạng là một hình phẳng. Hình phẳng đó là:',
+    skill: 'Tìm giá trị lớn nhất của biểu thức trên miền nghiệm đa giác',
+    points: 0.25,
+    text: 'Cho miền nghiệm của hệ bất phương trình $\\begin{cases} x \\ge 0 \\\\ y \\ge 0 \\\\ x + y \\le 5 \\\\ x + 2y \\le 6 \\end{cases}$ là miền đa giác $OABC$ với các đỉnh $O(0;0), A(0;3), B(4;1), C(5;0)$. Giá trị lớn nhất của biểu thức $F(x, y) = 2x + 5y$ trên miền nghiệm này bằng bao nhiêu?',
     options: [
-      { key: 'A', text: 'Tam giác' },
-      { key: 'B', text: 'Hình chữ nhật' },
-      { key: 'C', text: 'Tứ giác không vuông' },
-      { key: 'D', text: 'Ngũ giác' },
+      { text: '$10$', isCorrect: false },
+      { text: '$13$', isCorrect: false },
+      { text: '$15$', isCorrect: true },
+      { text: '$18$', isCorrect: false },
     ],
-    correct: 'A',
     explanation:
-      '<strong>Lời giải:</strong> Các bất phương trình $x \\ge 0, y \\ge 0$ giới hạn miền nghiệm ở góc phần tư thứ nhất.<br>Đường thẳng $x + 2y = 4$ cắt trục hoành tại $A(4;0)$ và cắt trục tung tại $B(0;2)$.<br>Miền nghiệm là miền tam giác vuông $OAB$ bao gồm cả 3 cạnh.<br><strong>Đáp án đúng: A.</strong>',
+      'Tính giá trị của $F(x, y)$ tại các đỉnh của đa giác miền nghiệm:<br>• $F(0,0) = 2(0) + 5(0) = 0$<br>• $F(0,3) = 2(0) + 5(3) = 15$<br>• $F(4,1) = 2(4) + 5(1) = 13$<br>• $F(5,0) = 2(5) + 5(0) = 10$<br>Giá trị lớn nhất của $F(x,y)$ bằng $15$, đạt tại điểm $A(0;3)$.',
   },
   {
     id: 'bpt8',
     number: 8,
     type: 'mcq',
-    skill: 'Xác định hệ bất phương trình từ hình vẽ miền nghiệm',
-    points: 0.5,
-    text: 'Cho miền nghiệm (miền không bị gạch) giới hạn bởi tam giác $OAB$ với các đỉnh $O(0;0)$, $A(5;0)$, $B(0;2)$ (kể cả biên). Hệ bất phương trình mô tả miền nghiệm này là:',
+    skill: 'Biểu diễn miền trong tam giác bằng hệ bất phương trình',
+    points: 0.25,
+    text: 'Cho tam giác $MNP$ có các đỉnh $M(0; 4)$, $N(2; 0)$, $P(0; 0)$. Miền nghiệm (gồm cả bờ) là miền trong của tam giác $MNP$ được biểu diễn bởi hệ bất phương trình nào sau đây?',
     options: [
-      { key: 'A', text: '$\\begin{cases} x \\ge 0 \\\\ y \\ge 0 \\\\ 2x + 5y \\le 10 \\end{cases}$' },
-      { key: 'B', text: '$\\begin{cases} x \\ge 0 \\\\ y \\ge 0 \\\\ 5x + 2y \\le 10 \\end{cases}$' },
-      { key: 'C', text: '$\\begin{cases} x \\le 0 \\\\ y \\le 0 \\\\ 2x + 5y \\ge 10 \\end{cases}$' },
-      { key: 'D', text: '$\\begin{cases} x \\ge 0 \\\\ y \\ge 0 \\\\ 2x + 5y \\ge 10 \\end{cases}$' },
+      { text: '$\\begin{cases} x \\ge 0 \\\\ y \\ge 0 \\\\ 2x + y \\le 4 \\end{cases}$', isCorrect: true },
+      { text: '$\\begin{cases} x \\ge 0 \\\\ y \\ge 0 \\\\ x + 2y \\le 4 \\end{cases}$', isCorrect: false },
+      { text: '$\\begin{cases} x \\le 0 \\\\ y \\le 0 \\\\ 2x + y \\ge 4 \\end{cases}$', isCorrect: false },
+      { text: '$\\begin{cases} x \\ge 0 \\\\ y \\ge 0 \\\\ 2x + y \\ge 4 \\end{cases}$', isCorrect: false },
     ],
-    correct: 'A',
     explanation:
-      '<strong>Lời giải:</strong> Đường thẳng đi qua hai điểm $A(5;0)$ và $B(0;2)$ có phương trình đoạn chắn: $\\dfrac{x}{5} + \\dfrac{y}{2} = 1 \\iff 2x + 5y = 10$.<br>Thử $O(0;0)$: $2(0) + 5(0) = 0 \\le 10$ (đúng). Do miền nghiệm chứa $O$ nên bất phương trình là $2x + 5y \\le 10$.<br>Kết hợp $x \\ge 0, y \\ge 0$, ta thu được hệ ở phương án A.<br><strong>Đáp án đúng: A.</strong>',
+      'Phương trình đường thẳng $MN$ đi qua $M(0; 4)$ và $N(2; 0)$ có dạng đoạn chắn: $\\dfrac{x}{2} + \\dfrac{y}{4} = 1 \\Leftrightarrow 2x + y = 4$.<br>Miền tam giác nằm ở góc phần tư thứ I ($x \\ge 0, y \\ge 0$) và chứa điểm $P(0;0)$, do đó $2x + y \\le 4$.',
   },
   {
     id: 'bpt9',
     number: 9,
     type: 'mcq',
-    skill: 'Tìm tọa độ đỉnh của miền nghiệm đa giác',
-    points: 0.5,
-    text: 'Miền nghiệm của hệ bất phương trình $\\begin{cases} x + y \\le 5 \\\\ x - y \\le 1 \\\\ x \\ge 0 \\\\ y \\ge 0 \\end{cases}$ là một tứ giác $OABC$. Tọa độ đỉnh $B$ (giao điểm của hai đường thẳng $x + y = 5$ và $x - y = 1$) là:',
+    skill: 'Toán thực tế: Lập hệ bất phương trình điều kiện sản xuất',
+    points: 0.25,
+    text: 'Một xưởng thủ công sản xuất hai loại đồ mỹ nghệ X và Y. Để sản xuất 1 sản phẩm X cần 3 giờ chế tác và 1 kg nguyên liệu. Để sản xuất 1 sản phẩm Y cần 2 giờ chế tác và 2 kg nguyên liệu. Mỗi ngày xưởng có tối đa 12 giờ chế tác và 8 kg nguyên liệu. Gọi $x, y$ lần lượt là số sản phẩm X và Y sản xuất trong một ngày ($x, y \\ge 0$). Hệ bất phương trình mô tả các điều kiện ràng buộc trên là:',
     options: [
-      { key: 'A', text: '$(3; 2)$' },
-      { key: 'B', text: '$(2; 3)$' },
-      { key: 'C', text: '$(4; 1)$' },
-      { key: 'D', text: '$(1; 4)$' },
+      { text: '$\\begin{cases} x \\ge 0, y \\ge 0 \\\\ 3x + 2y \\le 12 \\\\ x + 2y \\le 8 \\end{cases}$', isCorrect: true },
+      { text: '$\\begin{cases} x \\ge 0, y \\ge 0 \\\\ x + 2y \\le 12 \\\\ 3x + 2y \\le 8 \\end{cases}$', isCorrect: false },
+      { text: '$\\begin{cases} x > 0, y > 0 \\\\ 3x + 2y \\ge 12 \\\\ x + 2y \\ge 8 \\end{cases}$', isCorrect: false },
+      { text: '$\\begin{cases} x \\ge 0, y \\ge 0 \\\\ 2x + 3y \\le 12 \\\\ 2x + y \\le 8 \\end{cases}$', isCorrect: false },
     ],
-    correct: 'A',
     explanation:
-      '<strong>Lời giải:</strong> Giải hệ phương trình tọa độ giao điểm:<br>$$\\begin{cases} x + y = 5 \\\\ x - y = 1 \\end{cases} \\iff \\begin{cases} 2x = 6 \\\\ y = 5 - x \\end{cases} \\iff \\begin{cases} x = 3 \\\\ y = 2 \\end{cases}$$Vậy tọa độ đỉnh $B$ là $(3; 2)$.<br><strong>Đáp án đúng: A.</strong>',
+      'Tổng thời gian chế tác không vượt quá 12 giờ: $3x + 2y \\le 12$.<br>Tổng lượng nguyên liệu không vượt quá 8 kg: $x + 2y \\le 8$.<br>Ràng buộc số lượng sản phẩm không âm: $x \\ge 0, y \\ge 0$.',
   },
   {
     id: 'bpt10',
     number: 10,
     type: 'mcq',
-    skill: 'Tìm giá trị lớn nhất của biểu thức bậc nhất trên miền đa giác',
-    points: 0.5,
-    text: 'Cho $x, y$ thỏa mãn miền nghiệm của một hệ bất phương trình là tứ giác $OABC$ có các đỉnh $O(0;0)$, $A(4;0)$, $B(3;2)$, $C(0;3)$. Giá trị lớn nhất của biểu thức $F(x, y) = 3x + 2y$ trên miền nghiệm này bằng:',
+    skill: 'Toán thực tế: Lập hệ bất phương trình phối hợp thức ăn chăn nuôi',
+    points: 0.25,
+    text: 'Một trang trại cần cung cấp ít nhất 800 đơn vị vitamin A và 600 đơn vị vitamin C mỗi ngày cho đàn gia súc. Có hai loại thức ăn T1 và T2. Mỗi kg T1 chứa 400 đơn vị vitamin A và 200 đơn vị vitamin C. Mỗi kg T2 chứa 200 đơn vị vitamin A và 200 đơn vị vitamin C. Gọi $x, y$ lần lượt là số kg thức ăn T1 và T2 mà trang trại dùng mỗi ngày ($x \\ge 0, y \\ge 0$). Hệ bất phương trình biểu diễn lượng vitamin tối thiểu cần cung cấp là:',
     options: [
-      { key: 'A', text: '$13$' },
-      { key: 'B', text: '$12$' },
-      { key: 'C', text: '$6$' },
-      { key: 'D', text: '$15$' },
+      { text: '$\\begin{cases} x \\ge 0, y \\ge 0 \\\\ 2x + y \\ge 4 \\\\ x + y \\ge 3 \\end{cases}$', isCorrect: true },
+      { text: '$\\begin{cases} x \\ge 0, y \\ge 0 \\\\ 2x + y \\le 4 \\\\ x + y \\le 3 \\end{cases}$', isCorrect: false },
+      { text: '$\\begin{cases} x \\ge 0, y \\ge 0 \\\\ x + 2y \\ge 4 \\\\ x + y \\ge 3 \\end{cases}$', isCorrect: false },
+      { text: '$\\begin{cases} x \\ge 0, y \\ge 0 \\\\ 4x + y \\ge 8 \\\\ x + 2y \\ge 6 \\end{cases}$', isCorrect: false },
     ],
-    correct: 'A',
     explanation:
-      '<strong>Lời giải:</strong> Theo định lý về giá trị cực trị của hàm mục tiêu trên miền nghiệm đa giác, $F(x,y)$ đạt GTLN tại một trong các đỉnh của đa giác:<br>- $F(0, 0) = 3(0) + 2(0) = 0$<br>- $F(4, 0) = 3(4) + 2(0) = 12$<br>- $F(3, 2) = 3(3) + 2(2) = 13$<br>- $F(0, 3) = 3(0) + 2(3) = 6$<br>So sánh các giá trị, GTLN của $F(x,y)$ bằng $13$ tại đỉnh $B(3;2)$.<br><strong>Đáp án đúng: A.</strong>',
+      'Tổng vitamin A: $400x + 200y \\ge 800 \\Leftrightarrow 2x + y \\ge 4$.<br>Tổng vitamin C: $200x + 200y \\ge 600 \\Leftrightarrow x + y \\ge 3$.<br>Cùng với điều kiện $x \\ge 0, y \\ge 0$.',
   },
   {
     id: 'bpt11',
     number: 11,
     type: 'mcq',
-    skill: 'Tìm giá trị nhỏ nhất của biểu thức bậc nhất trên miền đa giác',
-    points: 0.5,
-    text: 'Giá trị nhỏ nhất của biểu thức $F(x, y) = 2x - y$ trên miền nghiệm của hệ bất phương trình $\\begin{cases} x \\ge 0 \\\\ y \\ge 0 \\\\ x + y \\le 6 \\\\ 2x + y \\ge 2 \\end{cases}$ bằng:',
+    skill: 'Toán thực tế: Tối ưu hóa lợi nhuận bán hàng',
+    points: 0.25,
+    text: 'Một cửa hàng bán hai loại bánh ngọt X và Y. Lợi nhuận thu được khi bán 1 hộp bánh X là 50 nghìn đồng, 1 hộp bánh Y là 40 nghìn đồng. Gọi $x, y$ lần lượt là số hộp bánh X và Y bán trong ngày ($x, y \\ge 0$). Miền nghiệm thỏa mãn các điều kiện kinh doanh là tứ giác $OABC$ với các đỉnh $O(0;0), A(0;30), B(20;25), C(40;0)$. Lợi nhuận lớn nhất mà cửa hàng có thể đạt được trong ngày là bao nhiêu?',
     options: [
-      { key: 'A', text: '$-6$' },
-      { key: 'B', text: '$-1$' },
-      { key: 'C', text: '$2$' },
-      { key: 'D', text: '$12$' },
+      { text: '1,2 triệu đồng', isCorrect: false },
+      { text: '1,6 triệu đồng', isCorrect: false },
+      { text: '2,0 triệu đồng', isCorrect: true },
+      { text: '2,5 triệu đồng', isCorrect: false },
     ],
-    correct: 'A',
     explanation:
-      '<strong>Lời giải:</strong> Xác định tọa độ các đỉnh miền nghiệm tứ giác:<br>- $A(1; 0)$ là giao điểm của $y = 0$ và $2x + y = 2$<br>- $B(6; 0)$ là giao điểm của $y = 0$ và $x + y = 6$<br>- $C(0; 6)$ là giao điểm của $x = 0$ và $x + y = 6$<br>- $D(0; 2)$ là giao điểm của $x = 0$ và $2x + y = 2$<br>Tính giá trị $F(x, y) = 2x - y$ tại các đỉnh:<br>$F(1, 0) = 2$, $F(6, 0) = 12$, $F(0, 6) = -6$, $F(0, 2) = -2$.<br>Vậy GTNN của $F(x,y)$ bằng $-6$ tại điểm $(0; 6)$.<br><strong>Đáp án đúng: A.</strong>',
+      'Hàm lợi nhuận: $F(x, y) = 50x + 40y$ (nghìn đồng).<br>Tính giá trị tại các đỉnh:<br>• $F(0,0) = 0$.<br>• $F(0,30) = 1200$ nghìn đồng = 1,2 triệu đồng.<br>• $F(20,25) = 50(20) + 40(25) = 2000$ nghìn đồng = 2,0 triệu đồng.<br>• $F(40,0) = 50(40) + 40(0) = 2000$ nghìn đồng = 2,0 triệu đồng.<br>Lợi nhuận lớn nhất cửa hàng có thể đạt được trong ngày là 2,0 triệu đồng.',
   },
   {
     id: 'bpt12',
     number: 12,
     type: 'mcq',
-    skill: 'Thiết lập hệ bất phương trình bậc nhất hai ẩn từ bài toán thực tế',
-    points: 0.5,
-    text: 'Một cơ sở sản xuất chế biến hai loại nước trái cây $A$ và $B$. Để sản xuất $1\\text{ lít}$ nước trái cây loại $A$ cần $2\\text{ kg}$ táo và $1\\text{ kg}$ cam. Để sản xuất $1\\text{ lít}$ nước trái cây loại $B$ cần $1\\text{ kg}$ táo và $2\\text{ kg}$ cam. Cơ sở hiện có tối đa $30\\text{ kg}$ táo và $30\\text{ kg}$ cam. Gọi $x, y$ lần lượt là số lít nước trái cây loại $A$ và $B$ cần sản xuất. Hệ bất phương trình mô tả các điều kiện ràng buộc về nguyên liệu là:',
+    skill: 'Toán thực tế: Tối ưu hóa lượt tiếp cận quảng cáo đa kênh',
+    points: 0.25,
+    text: 'Một công ty truyền thông dự định chạy quảng cáo sản phẩm trên hai nền tảng: Mạng xã hội ($x$ phút) và Truyền hình ($y$ phút). Chi phí quảng cáo trên Mạng xã hội là 2 triệu đồng/phút, trên Truyền hình là 6 triệu đồng/phút, với tổng ngân sách không quá 36 triệu đồng. Mỗi phút quảng cáo trên Mạng xã hội tiếp cận được 15.000 người, trên Truyền hình tiếp cận được 40.000 người. Công ty yêu cầu thời lượng Truyền hình không quá 4 phút; thời lượng Mạng xã hội ít nhất là 3 phút và thời lượng Mạng xã hội phải lớn hơn hoặc bằng thời lượng Truyền hình. Để lượng người tiếp cận lớn nhất, số phút quảng cáo trên Mạng xã hội ($x$) và Truyền hình ($y$) cần mua là:',
     options: [
-      { key: 'A', text: '$\\begin{cases} x \\ge 0, y \\ge 0 \\\\ 2x + y \\le 30 \\\\ x + 2y \\le 30 \\end{cases}$' },
-      { key: 'B', text: '$\\begin{cases} x \\ge 0, y \\ge 0 \\\\ x + 2y \\le 30 \\\\ 2x + y \\ge 30 \\end{cases}$' },
-      { key: 'C', text: '$\\begin{cases} x > 0, y > 0 \\\\ 2x + y \\ge 30 \\\\ x + 2y \\ge 30 \\end{cases}$' },
-      { key: 'D', text: '$\\begin{cases} x \\ge 0, y \\ge 0 \\\\ x + y \\le 30 \\\\ 2x + 2y \\le 30 \\end{cases}$' },
+      { text: '$x = 6, y = 4$', isCorrect: false },
+      { text: '$x = 12, y = 2$', isCorrect: false },
+      { text: '$x = 18, y = 0$', isCorrect: true },
+      { text: '$x = 4, y = 4$', isCorrect: false },
     ],
-    correct: 'A',
     explanation:
-      '<strong>Lời giải:</strong><br>- Lượng nước trái cây sản xuất không âm: $x \\ge 0, y \\ge 0$.<br>- Lượng táo sử dụng tối đa $30\\text{ kg}$: $2x + y \\le 30$.<br>- Lượng cam sử dụng tối đa $30\\text{ kg}$: $x + 2y \\le 30$.<br>Kết hợp lại ta thu được hệ ở phương án A.<br><strong>Đáp án đúng: A.</strong>',
-  },
-  {
-    id: 'bpt13',
-    number: 13,
-    type: 'mcq',
-    skill: 'Tìm điều kiện tham số để biểu thức là bất phương trình bậc nhất hai ẩn',
-    points: 0.5,
-    text: 'Bất phương trình $(2m-2)x + (m+1)y \\le 8$ là bất phương trình bậc nhất hai ẩn $x, y$ khi và chỉ khi:',
-    options: [
-      { key: 'A', text: 'Với mọi $m \\in \\mathbb{R}$' },
-      { key: 'B', text: '$m \\neq 1$' },
-      { key: 'C', text: '$m \\neq -1$' },
-      { key: 'D', text: '$m \\neq 1$ và $m \\neq -1$' },
-    ],
-    correct: 'A',
-    explanation:
-      '<strong>Lời giải:</strong> Bất phương trình $ax + by \\le c$ là bất phương trình bậc nhất hai ẩn khi các hệ số $a, b$ không đồng thời bằng $0$, tức $a^2 + b^2 \\neq 0$.<br>Ở đây $a = 2m - 2$ và $b = m + 1$.<br>Xét hệ điều kiện đồng thời bằng $0$: $\\begin{cases} 2m - 2 = 0 \\\\ m + 1 = 0 \\end{cases} \\iff \\begin{cases} m = 1 \\\\ m = -1 \\end{cases}$ (vô lý).<br>Do đó $a$ và $b$ không bao giờ đồng thời bằng $0$ với bất kỳ giá trị nào của $m$. Bất phương trình luôn là bất phương trình bậc nhất hai ẩn với mọi $m \\in \\mathbb{R}$.<br><strong>Đáp án đúng: A.</strong>',
-  },
-  {
-    id: 'bpt14',
-    number: 14,
-    type: 'mcq',
-    skill: 'Bài toán tối ưu hóa quy hoạch tuyến tính thực tế',
-    points: 0.5,
-    text: 'Một xưởng cơ khí sản xuất hai loại sản phẩm $A$ và $B$. Mỗi sản phẩm loại $A$ mang lại lợi nhuận $120\\text{ nghìn đồng}$, mỗi sản phẩm loại $B$ mang lại lợi nhuận $180\\text{ nghìn đồng}$. Năng lực sản xuất trong một ngày đối với số sản phẩm $A$ ($x$) và số sản phẩm $B$ ($y$) bị giới hạn bởi hệ bất phương trình: $\\begin{cases} x + y \\le 12 \\\\ x \\ge 3 \\\\ y \\ge 2 \\end{cases}$. Lợi nhuận lớn nhất mà xưởng có thể đạt được trong một ngày là:',
-    options: [
-      { key: 'A', text: '$1,98\\text{ triệu đồng}$' },
-      { key: 'B', text: '$1,80\\text{ triệu đồng}$' },
-      { key: 'C', text: '$2,16\\text{ triệu đồng}$' },
-      { key: 'D', text: '$1,50\\text{ triệu đồng}$' },
-    ],
-    correct: 'A',
-    explanation:
-      '<strong>Lời giải:</strong> Hàm lợi nhuận: $F(x, y) = 120x + 180y$ (nghìn đồng).<br>Miền nghiệm của hệ là tam giác giới hạn bởi 3 đường thẳng $x = 3$, $y = 2$, $x + y = 12$.<br>Tọa độ 3 đỉnh tam giác miền nghiệm:<br>- $A(3; 2)$ là giao điểm của $x = 3$ và $y = 2$<br>- $B(3; 9)$ là giao điểm của $x = 3$ và $x + y = 12$<br>- $C(10; 2)$ là giao điểm của $y = 2$ và $x + y = 12$<br>Tính $F(x, y)$ tại các đỉnh:<br>$F(3, 2) = 120(3) + 180(2) = 720\\text{ (nghìn đồng)}$<br>$F(3, 9) = 120(3) + 180(9) = 1980\\text{ (nghìn đồng)} = 1,98\\text{ triệu đồng}$<br>$F(10, 2) = 120(10) + 180(2) = 1560\\text{ (nghìn đồng)} = 1,56\\text{ triệu đồng}$<br>Vậy lợi nhuận lớn nhất xưởng đạt được là $1,98\\text{ triệu đồng}$ khi sản xuất $3$ sản phẩm $A$ và $9$ sản phẩm $B$.<br><strong>Đáp án đúng: A.</strong>',
+      'Các điều kiện ràng buộc: $x \\ge 3, 0 \\le y \\le 4, x \\ge y, 2x + 6y \\le 36 \\Leftrightarrow x + 3y \\le 18$.<br>Lượng người tiếp cận: $N(x, y) = 15.000x + 40.000y$.<br>Xét các đỉnh của đa giác miền nghiệm:<br>• Điểm $(3,0) \\Rightarrow N = 45.000$.<br>• Điểm $(18,0) \\Rightarrow N = 270.000$.<br>• Điểm $(6,4) \\Rightarrow N = 15.000(6) + 40.000(4) = 250.000$.<br>• Điểm $(4,4) \\Rightarrow N = 220.000$.<br>• Điểm $(3,3) \\Rightarrow N = 165.000$.<br>Vậy lượng người tiếp cận lớn nhất là 270.000 người khi chọn $x = 18$ phút Mạng xã hội và $y = 0$ phút Truyền hình.',
   },
 ];
 
-// PHẦN II. TỰ LUẬN (2 CÂU - 3,0 ĐIỂM, 1.5Đ/CÂU)
-const SHORTANS_QUESTIONS_BPT_DE_B: QuestionShortAns[] = [
+const RAW_TF_QUESTIONS: QuestionTF[] = [
   {
-    id: 'bpt15',
-    number: 15,
-    type: 'shortans',
-    skill: 'Biểu diễn miền nghiệm và tối ưu hóa biểu thức bậc nhất hai ẩn',
-    points: 1.5,
-    text: 'Cho hệ bất phương trình bậc nhất hai ẩn: $\\begin{cases} x - y \\le 1 \\\\ 2x + y \\le 8 \\\\ x \\ge 0 \\\\ y \\ge 0 \\end{cases}$<br><br><strong>a) (0,75 điểm)</strong> Biểu diễn miền nghiệm của hệ bất phương trình trên mặt phẳng tọa độ $Oxy$.<br><strong>b) (0,75 điểm)</strong> Tìm tọa độ các đỉnh của miền nghiệm đa giác và tìm giá trị lớn nhất của biểu thức $F(x, y) = 5x + 2y$ trên miền nghiệm đó.',
-    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
-    correctDisplay: 'Tứ giác OABC: O(0;0), A(1;0), B(3;2), C(0;8); max F = 19 tại B(3;2)',
-    validator: (val: string) => {
-      const clean = val.toLowerCase().replace(/\s+/g, '');
-      const hasB = clean.includes('(3;2)') || clean.includes('3;2') || clean.includes('b(3,2)') || clean.includes('b(3;2)');
-      const hasMax = clean.includes('19') || clean.includes('max=19') || clean.includes('f=19');
-      const hasPeaks = clean.includes('(1;0)') || clean.includes('(0;8)') || clean.includes('1;0') || clean.includes('0;8');
-      return (hasB && hasMax) || (hasMax && hasPeaks) || clean.includes('19');
-    },
+    id: 'tf1',
+    number: 1,
+    type: 'tf',
+    skill: 'Khảo sát miền nghiệm đa giác và giá trị của biểu thức bậc nhất',
+    text: 'Cho hệ bất phương trình $\\begin{cases} x \\ge 0 \\\\ y \\ge 0 \\\\ x + y \\le 5 \\\\ x + 2y \\le 8 \\end{cases}$. Gọi $S$ là miền nghiệm (bao gồm cả biên) của hệ bất phương trình và $F(x, y) = 3x + 2y$ là biểu thức xét trên miền $S$.',
+    items: [
+      { key: 'a', text: 'Cặp số $(1; 2)$ thuộc miền nghiệm $S$.', correct: true },
+      { key: 'b', text: 'Miền nghiệm $S$ là một tứ giác có diện tích bằng $11{,}5$.', correct: true },
+      { key: 'c', text: 'Giá trị lớn nhất của $F(x, y)$ trên miền $S$ đạt được tại điểm $C(5;0)$.', correct: true },
+      { key: 'd', text: 'Giá trị nhỏ nhất của $F(x, y)$ trên miền $S$ bằng $8$.', correct: false },
+    ],
     explanation:
-      '<strong>Lời giải chi tiết và thang điểm:</strong><br><br><strong>a) (0,75 điểm)</strong><br>- Đường thẳng $d_1: x - y = 1$ qua $(1;0)$ và $(0;-1)$. Miền nghiệm chứa $O(0;0)$. (0,25đ)<br>- Đường thẳng $d_2: 2x + y = 8$ qua $(4;0)$ và $(0;8)$. Miền nghiệm chứa $O(0;0)$. (0,25đ)<br>- Kết hợp $x \\ge 0, y \\ge 0$ (góc phần tư thứ I), miền nghiệm của hệ là miền tứ giác $OABC$ (kể cả biên). (0,25đ)<br><br><strong>b) (0,75 điểm)</strong><br>- Tọa độ các đỉnh: $O(0; 0), A(1; 0), B(3; 2), C(0; 8)$. (0,25đ)<br>- Tính giá trị biểu thức $F(x, y) = 5x + 2y$ tại các đỉnh:<br>  + $F(O) = F(0, 0) = 5(0) + 2(0) = 0$<br>  + $F(A) = F(1, 0) = 5(1) + 2(0) = 5$<br>  + $F(B) = F(3, 2) = 5(3) + 2(2) = 19$<br>  + $F(C) = F(0, 8) = 5(0) + 2(8) = 16$. (0,25đ)<br>- So sánh các giá trị, giá trị lớn nhất của $F(x, y)$ trên miền nghiệm bằng $19$ tại đỉnh $B(3; 2)$. (0,25đ)',
+      '<strong>a) Đúng:</strong> Thay $(1;2)$: $1 \\ge 0, 2 \\ge 0, 1+2=3 \\le 5, 1+2(2)=5 \\le 8$ (đều đúng).<br><strong>b) Đúng:</strong> Các đỉnh đa giác miền nghiệm là $O(0;0), A(0;4), B(2;3), C(5;0)$. Diện tích $S_{OABC} = S_{OAB} + S_{OBC} = \\dfrac{1}{2} \\cdot 4 \\cdot 2 + \\dfrac{1}{2} \\cdot 5 \\cdot 3 = 4 + 7{,}5 = 11{,}5$.<br><strong>c) Đúng:</strong> $F(O)=0, F(A)=8, F(B)=12, F(C)=15$. Giá trị lớn nhất $F_{\\max}=15$ đạt tại $C(5;0)$.<br><strong>d) Sai:</strong> Giá trị nhỏ nhất $F_{\\min} = 0$ tại $O(0;0)$, không phải bằng $8$.',
   },
   {
-    id: 'bpt16',
-    number: 16,
+    id: 'tf2',
+    number: 2,
+    type: 'tf',
+    skill: 'Bài toán sản xuất bàn ghế tối ưu hóa lợi nhuận tuần',
+    text: 'Một xưởng sản xuất bàn (X) và ghế (Y). Để làm 1 chiếc bàn cần 3 giờ chế biến gỗ và 1 giờ hoàn thiện. Để làm 1 chiếc ghế cần 1 giờ chế biến gỗ và 1 giờ hoàn thiện. Tổng thời gian tối đa trong tuần cho công đoạn chế biến gỗ là 45 giờ, công đoạn hoàn thiện là 25 giờ. Lợi nhuận từ 1 chiếc bàn là 600 nghìn đồng, 1 chiếc ghế là 300 nghìn đồng. Gọi $x, y$ lần lượt là số chiếc bàn và ghế sản xuất trong tuần ($x, y \\ge 0$).',
+    items: [
+      { key: 'a', text: 'Hệ bất phương trình biểu diễn thời gian hoạt động của các công đoạn trong tuần là $\\begin{cases} x \\ge 0, y \\ge 0 \\\\ 3x + y \\le 45 \\\\ x + y \\le 25 \\end{cases}$.', correct: true },
+      { key: 'b', text: 'Nếu xưởng sản xuất 10 chiếc bàn và 10 chiếc ghế trong một tuần thì kế hoạch này vi phạm thời gian công đoạn chế biến gỗ.', correct: false },
+      { key: 'c', text: 'Đa giác miền nghiệm của hệ bất phương trình có các đỉnh là $O(0;0), A(0;25), B(10;15), C(15;0)$.', correct: true },
+      { key: 'd', text: 'Để thu được lợi nhuận lớn nhất, xưởng cần sản xuất 10 chiếc bàn và 15 chiếc ghế trong một tuần.', correct: true },
+    ],
+    explanation:
+      '<strong>a) Đúng:</strong> Công đoạn chế biến gỗ: $3x + y \\le 45$; Công đoạn hoàn thiện: $x + y \\le 25$.<br><strong>b) Sai:</strong> Với $x=10, y=10$: Công đoạn chế biến gỗ dùng $3(10) + 10 = 40 \\le 45$ (chưa vi phạm).<br><strong>c) Đúng:</strong> Giao điểm của các đường ranh giới xác định tứ giác $OABC$ với các đỉnh $O(0;0), A(0;25), B(10;15), C(15;0)$.<br><strong>d) Đúng:</strong> Hàm lợi nhuận $T(x,y) = 600x + 300y$. $T(O)=0, T(A)=7500, T(B)=10500, T(C)=9000$ (nghìn đồng). Lợi nhuận lớn nhất bằng 10,5 triệu đồng tại $B(10;15)$.',
+  },
+];
+
+const RAW_SHORTANS_QUESTIONS: QuestionShortAns[] = [
+  {
+    id: 'sa1',
+    number: 1,
     type: 'shortans',
-    skill: 'Giải bài toán quy hoạch tuyến tính ứng dụng thực tế sản xuất',
-    points: 1.5,
-    text: 'Một công ty may mặc dự định may hai loại áo khoác là Áo khoác nhẹ ($A$) và Áo khoác ấm ($B$).<br>- Để may $1$ chiếc áo loại $A$, cần $1\\text{ giờ}$ cắt vải và $2\\text{ giờ}$ may hoàn thiện, mang lại lợi nhuận $150.000\\text{ đồng}$.<br>- Để may $1$ chiếc áo loại $B$, cần $2\\text{ giờ}$ cắt vải và $1\\text{ giờ}$ may hoàn thiện, mang lại lợi nhuận $120.000\\text{ đồng}$.<br>Xưởng có quỹ thời gian tối đa mỗi ngày là $8\\text{ giờ}$ cắt vải và $10\\text{ giờ}$ may hoàn thiện.<br><br><strong>a) (0,75 điểm)</strong> Gọi $x, y$ lần lượt là số chiếc áo loại $A$ và loại $B$ sản xuất trong một ngày ($x, y \\in \\mathbb{R}, x \\ge 0, y \\ge 0$). Lập hệ bất phương trình ràng buộc và biểu diễn miền nghiệm của hệ trên mặt phẳng $Oxy$.<br><strong>b) (0,75 điểm)</strong> Xưởng nên sản xuất bao nhiêu chiếc áo mỗi loại trong một ngày để thu được tổng lợi nhuận lớn nhất và tính giá trị lợi nhuận lớn nhất đó.',
+    skill: 'Tìm GTLN của biểu thức F(x, y) trên miền nghiệm hệ 4 bất phương trình',
+    points: 1.0,
+    text: 'Cho $x, y$ thỏa mãn hệ bất phương trình $\\begin{cases} 2x - y \\le 4 \\\\ x + y \\le 5 \\\\ x \\ge 0 \\\\ y \\ge 0 \\end{cases}$. Tìm giá trị lớn nhất của biểu thức $F(x, y) = 4x + 3y$.',
     placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
-    correctDisplay: '4 áo loại A, 2 áo loại B (x=4, y=2); Lợi nhuận lớn nhất 840.000 đồng',
+    correctDisplay: '18',
     validator: (val: string) => {
       const clean = val.toLowerCase().replace(/\s+/g, '');
-      const hasA = clean.includes('4') || clean.includes('x=4') || clean.includes('4ao') || clean.includes('4áo');
-      const hasB = clean.includes('2') || clean.includes('y=2') || clean.includes('2ao') || clean.includes('2áo');
-      const hasProfit = clean.includes('840') || clean.includes('840000') || clean.includes('840.000');
-      return (hasA && hasB && hasProfit) || (hasA && hasB) || hasProfit;
+      return clean === '18';
     },
     explanation:
-      '<strong>Lời giải chi tiết và thang điểm:</strong><br><br><strong>a) (0,75 điểm)</strong><br>- Hệ ràng buộc: $\\begin{cases} x + 2y \\le 8 \\\\ 2x + y \\le 10 \\\\ x \\ge 0 \\\\ y \\ge 0 \\end{cases}$ (0,25đ)<br>- Miền nghiệm là miền tứ giác $OABC$ (kể cả biên) với $O(0;0), A(5;0), B(4;2), C(0;4)$. (0,5đ)<br><br><strong>b) (0,75 điểm)</strong><br>- Lợi nhuận trong một ngày: $T(x, y) = 150x + 120y$ (nghìn đồng). (0,25đ)<br>- Tính giá trị của $T(x,y)$ tại 4 đỉnh miền nghiệm:<br>  + $T(O) = 0$<br>  + $T(A) = 150(5) + 120(0) = 750\\text{ (nghìn đồng)}$<br>  + $T(B) = 150(4) + 120(2) = 840\\text{ (nghìn đồng)}$<br>  + $T(C) = 150(0) + 120(4) = 480\\text{ (nghìn đồng)}$. (0,25đ)<br>- So sánh: Lợi nhuận lớn nhất là $840.000\\text{ đồng}$ khi xưởng sản xuất $4$ chiếc áo loại $A$ và $2$ chiếc áo loại $B$ mỗi ngày. (0,25đ)',
+      'Vẽ miền nghiệm của hệ bất phương trình, ta được miền tứ giác $OABC$ với các đỉnh:<br>$O(0;0), A(0;5), B(3;2), C(2;0)$.<br>Tính giá trị của $F(x, y)$ tại các đỉnh:<br>• $F(0,0) = 0$<br>• $F(0,5) = 15$<br>• $F(3,2) = 4(3) + 3(2) = 18$<br>• $F(2,0) = 8$.<br>Vậy giá trị lớn nhất của $F(x, y)$ bằng 18.',
+  },
+  {
+    id: 'sa2',
+    number: 2,
+    type: 'shortans',
+    skill: 'Toán thực tế: Phân bổ vốn đầu tư BĐS và Trái phiếu tối đa lợi nhuận',
+    points: 1.0,
+    text: 'Một nhà đầu tư dự định rót tối đa 2 tỷ đồng vào hai lĩnh vực: Bất động sản và Trái phiếu doanh nghiệp. Lợi nhuận dự kiến hàng năm từ Bất động sản là 12\\%, từ Trái phiếu là 8\\%. Nhà đầu tư yêu cầu số tiền rót vào Trái phiếu phải ít nhất là 400 triệu đồng và không ít hơn số tiền đầu tư vào Bất động sản. Lợi nhuận tối đa hàng năm (theo đơn vị triệu đồng) mà nhà đầu tư có thể thu được là bao nhiêu?',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
+    correctDisplay: '200',
+    validator: (val: string) => {
+      const clean = val.toLowerCase().replace(/\s+/g, '');
+      return clean.includes('200');
+    },
+    explanation:
+      'Gọi $x, y$ lần lượt là số tiền đầu tư Bất động sản và Trái phiếu (đơn vị: triệu đồng, $x \\ge 0, y \\ge 400$).<br>Hệ điều kiện: $\\begin{cases} x \\ge 0, y \\ge 400 \\\\ x + y \\le 2000 \\\\ y \\ge x \\end{cases}$.<br>Hàm lợi nhuận: $L(x, y) = 0{,}12x + 0{,}08y$ (triệu đồng).<br>Miền nghiệm là tứ giác với các đỉnh: $(0; 400), (0; 2000), (1000; 1000), (400; 400)$.<br>Tính lợi nhuận tại các đỉnh:<br>• $L(0, 400) = 32$ triệu đồng.<br>• $L(0, 2000) = 160$ triệu đồng.<br>• $L(1000, 1000) = 0{,}12(1000) + 0{,}08(1000) = 200$ triệu đồng.<br>• $L(400, 400) = 80$ triệu đồng.<br>Vậy lợi nhuận tối đa hàng năm nhà đầu tư thu được là 200 triệu đồng.',
+  },
+  {
+    id: 'sa3',
+    number: 3,
+    type: 'shortans',
+    skill: 'Toán thực tế: Tối thiểu hóa chi phí thức ăn nuôi thủy sản',
+    points: 1.0,
+    text: 'Một trang trại nuôi thủy sản phối hợp hai loại thức ăn K1 và K2. Mỗi kg K1 chứa 10 g chất dinh dưỡng A, 20 g chất dinh dưỡng B và có giá 40 nghìn đồng. Mỗi kg K2 chứa 20 g chất dinh dưỡng A, 10 g chất dinh dưỡng B và có giá 30 nghìn đồng. Mỗi ngày, trang trại cần cung cấp tối thiểu 100 g chất dinh dưỡng A và 80 g chất dinh dưỡng B. Chi phí tối thiểu (theo đơn vị nghìn đồng) để mua thức ăn trong một ngày là bao nhiêu?',
+    placeholder: 'Nhập đáp án... (VD: 15, -3/4, 2.5)',
+    correctDisplay: '200',
+    validator: (val: string) => {
+      const clean = val.toLowerCase().replace(/\s+/g, '');
+      return clean.includes('200');
+    },
+    explanation:
+      'Gọi $x, y$ lần lượt là số kg thức ăn K1 và K2 ($x \\ge 0, y \\ge 0$).<br>Ràng buộc dinh dưỡng: $\\begin{cases} 10x + 20y \\ge 100 \\Leftrightarrow x + 2y \\ge 10 \\\\ 20x + 10y \\ge 80 \\Leftrightarrow 2x + y \\ge 8 \\end{cases}$.<br>Hàm chi phí: $C(x, y) = 40x + 30y$ (nghìn đồng).<br>Miền nghiệm là vùng không giới hạn có các đỉnh biên: $A(0; 8), B(2; 4), C(10; 0)$.<br>Tính chi phí tại các đỉnh:<br>• $C(0, 8) = 40(0) + 30(8) = 240$ nghìn đồng.<br>• $C(2, 4) = 40(2) + 30(4) = 200$ nghìn đồng.<br>• $C(10, 0) = 40(10) + 30(0) = 400$ nghìn đồng.<br>Chi phí tối thiểu mua thức ăn trong một ngày là 200 nghìn đồng.',
   },
 ];
 
@@ -359,35 +371,43 @@ export default function Toan10BptDeBPage() {
   const [lopNhom, setLopNhom] = useState<string>('');
 
   // 2. STATE LÀM BÀI & TRẢ LỜI
-  const [mcqAnswers, setMcqAnswers] = useState<Record<string, 'A' | 'B' | 'C' | 'D'>>({});
+  const [mcqAnswers, setMcqAnswers] = useState<Record<string, number>>({});
+  const [tfAnswers, setTfAnswers] = useState<Record<string, Record<string, boolean | null>>>({});
   const [shortAnswers, setShortAnswers] = useState<Record<string, string>>({});
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   // State lưu danh sách câu hỏi trắc nghiệm đã xáo trộn phương án (Fisher-Yates)
-  const [shuffledMCQQuestions, setShuffledMCQQuestions] = useState<ShuffledQuestionMCQ[]>(() =>
-    MCQ_QUESTIONS_BPT_DE_B.map((q) => ({
+  const [shuffledMCQQuestions, setShuffledMCQQuestions] = useState<QuestionMCQ[]>(() =>
+    RAW_MCQ_QUESTIONS.map((q) => ({
       ...q,
-      options: q.options.map((opt) => ({ originalKey: opt.key, text: opt.text })),
+      options: q.options.map((opt) => ({ ...opt })),
     }))
   );
 
-  // Thuật toán xáo trộn mảng đáp án (Shuffle Array - Fisher-Yates) bên trong useEffect
+  // Xáo trộn phương án khi component được mount (Fisher-Yates)
   useEffect(() => {
-    const shuffled = MCQ_QUESTIONS_BPT_DE_B.map((q) => ({
+    const shuffled = RAW_MCQ_QUESTIONS.map((q) => ({
       ...q,
       options: shuffleOptions(q.options),
     }));
     setShuffledMCQQuestions(shuffled);
   }, []);
 
-  // 3. STATE KẾT QUẢ & CHẤM ĐIỂM
-  const [diemSo, setDiemSo] = useState<number>(0);
-  const [mangCauSai, setMangCauSai] = useState<string[]>([]);
-  const [soCauDungMCQ, setSoCauDungMCQ] = useState<number>(0);
-  const [soCauDungShort, setSoCauDungShort] = useState<number>(0);
+  // CẬP NHẬT TIÊU ĐỀ TRÌNH DUYỆT (DOCUMENT.TITLE) ĐỘNG THEO YÊU CẦU
+  useEffect(() => {
+    document.title = `${EXAM_TITLE} - ${EXAM_SUBTITLE}`;
+  }, []);
 
-  // 4. STATE ĐỒNG HỒ ĐẾM NGƯỢC (45 PHÚT = 2700 GIÂY)
+  // 3. STATE KẾT QUẢ & ĐIỂM SỐ
+  const [diemSo, setDiemSo] = useState<number>(0);
+  const [diemPhan1, setDiemPhan1] = useState<number>(0);
+  const [diemPhan2, setDiemPhan2] = useState<number>(0);
+  const [diemPhan3, setDiemPhan3] = useState<number>(0);
+  const [soCauDungMCQ, setSoCauDungMCQ] = useState<number>(0);
+  const [mangCauSai, setMangCauSai] = useState<string[]>([]);
+
+  // 4. ĐỒNG HỒ ĐẾM NGƯỢC (45 PHÚT = 2700 GIÂY)
   const [timeLeft, setTimeLeft] = useState<number>(45 * 60);
 
   useEffect(() => {
@@ -396,6 +416,7 @@ export default function Toan10BptDeBPage() {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
+          handleSubmit();
           return 0;
         }
         return prev - 1;
@@ -410,122 +431,115 @@ export default function Toan10BptDeBPage() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // 5. TRIGGER KATEX VỚI RENDERMATHINELEMENT
-  useEffect(() => {
-    const triggerKaTeX = () => {
-      if (typeof window !== 'undefined' && (window as any).renderMathInElement) {
-        try {
-          (window as any).renderMathInElement(document.body, {
-            delimiters: [
-              { left: '$$', right: '$$', display: true },
-              { left: '$', right: '$', display: false },
-            ],
-            throwOnError: false,
-          });
-        } catch (e) {
-          console.warn('Lỗi khi render KaTeX:', e);
-        }
-      }
-    };
-
-    triggerKaTeX();
-    const interval = setInterval(() => {
-      if (typeof window !== 'undefined' && (window as any).renderMathInElement) {
-        triggerKaTeX();
-        clearInterval(interval);
-      }
-    }, 200);
-
-    const timeout = setTimeout(() => clearInterval(interval), 3000);
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, [isSubmitted, shuffledMCQQuestions]);
-
-  // Tiến độ làm bài
+  // Tính tiến độ làm bài
   const answeredMCQCount = Object.keys(mcqAnswers).length;
+  let answeredTFSubCount = 0;
+  RAW_TF_QUESTIONS.forEach((q) => {
+    const subs = tfAnswers[q.id];
+    if (subs) {
+      ['a', 'b', 'c', 'd'].forEach((k) => {
+        if (subs[k] !== undefined && subs[k] !== null) {
+          answeredTFSubCount += 1;
+        }
+      });
+    }
+  });
   const answeredShortCount = Object.values(shortAnswers).filter((v) => v.trim().length > 0).length;
-  const totalQuestions = MCQ_QUESTIONS_BPT_DE_B.length + SHORTANS_QUESTIONS_BPT_DE_B.length;
-  const totalAnswered = answeredMCQCount + answeredShortCount;
-  const progressPercent = Math.round((totalAnswered / totalQuestions) * 100);
+  const totalItems = RAW_MCQ_QUESTIONS.length + RAW_TF_QUESTIONS.length * 4 + RAW_SHORTANS_QUESTIONS.length;
+  const totalAnswered = answeredMCQCount + answeredTFSubCount + answeredShortCount;
+  const progressPercent = Math.min(100, Math.round((totalAnswered / totalItems) * 100));
 
-  // 6. XỬ LÝ NỘP BÀI (SUBMIT) & GỬI WEBHOOK GAS / N8N
+  // 5. XỬ LÝ NỘP BÀI (SUBMIT) & GỬI WEBHOOK
   const handleSubmit = async () => {
     if (isSubmitted || isSubmitting) return;
 
     const ten = tenHocSinh.trim() || 'Học sinh ẩn danh';
-    const ma = maHocSinh.trim() || 'HS10-BPT-DE-B';
+    const ma = maHocSinh.trim() || 'HS10-BPT-B';
     const lop = lopNhom.trim() || 'Lớp 10';
 
     if (!tenHocSinh.trim()) {
       const confirmAnonymous = window.confirm(
         'Bạn chưa nhập Họ và tên. Bạn có muốn nộp bài với tên "Học sinh ẩn danh" không?'
       );
-      if (!confirmAnonymous) {
-        const inputTen = document.getElementById('input-ten');
-        if (inputTen) inputTen.focus();
-        return;
-      }
+      if (!confirmAnonymous) return;
     }
 
     setIsSubmitting(true);
 
-    let calculatedScore = 0;
+    let p1Score = 0;
     let correctMCQ = 0;
-    let correctShort = 0;
     const wrongSkills: string[] = [];
 
-    // Chấm Phần I (14 câu MCQ, 0.5đ/câu)
-    MCQ_QUESTIONS_BPT_DE_B.forEach((q) => {
-      const studentChoice = mcqAnswers[q.id];
-      if (studentChoice === q.correct) {
-        calculatedScore += q.points;
+    // Chấm Phần I (12 câu MCQ, 0.25đ/câu = 3.0đ)
+    shuffledMCQQuestions.forEach((q) => {
+      const selectedIndex = mcqAnswers[q.id];
+      const chosenOption = selectedIndex !== undefined ? q.options[selectedIndex] : null;
+      const isCorrect = chosenOption ? chosenOption.isCorrect === true : false;
+
+      if (isCorrect) {
+        p1Score += q.points;
         correctMCQ += 1;
       } else {
         wrongSkills.push(q.skill);
       }
     });
 
-    // Chấm Phần II (2 câu Tự luận, 1.5đ/câu)
-    SHORTANS_QUESTIONS_BPT_DE_B.forEach((q) => {
+    // Chấm Phần II (2 bài Đúng/Sai, tối đa 2.0đ/bài = 4.0đ)
+    let p2Score = 0;
+    RAW_TF_QUESTIONS.forEach((q) => {
+      const studentSubAnswers = tfAnswers[q.id] || {};
+      let correctSubCount = 0;
+      q.items.forEach((item) => {
+        if (studentSubAnswers[item.key] === item.correct) {
+          correctSubCount += 1;
+        }
+      });
+      const pointsThisQ = calculateTFPoints(correctSubCount);
+      p2Score += pointsThisQ;
+      if (correctSubCount < 4) {
+        wrongSkills.push(q.skill);
+      }
+    });
+
+    // Chấm Phần III (3 câu ngắn, 1.0đ/câu = 3.0đ)
+    let p3Score = 0;
+    RAW_SHORTANS_QUESTIONS.forEach((q) => {
       const studentText = shortAnswers[q.id] || '';
       const isCorrect = q.validator(studentText);
       if (isCorrect) {
-        calculatedScore += q.points;
-        correctShort += 1;
+        p3Score += q.points;
       } else {
         wrongSkills.push(q.skill);
       }
     });
 
-    const finalScore = Math.min(10, Math.round(calculatedScore * 10) / 10);
+    const finalScore = Math.min(10, Math.round((p1Score + p2Score + p3Score) * 100) / 100);
     const uniqueWrongSkills = Array.from(new Set(wrongSkills));
 
+    setDiemPhan1(Math.round(p1Score * 100) / 100);
+    setDiemPhan2(Math.round(p2Score * 100) / 100);
+    setDiemPhan3(Math.round(p3Score * 100) / 100);
     setDiemSo(finalScore);
     setSoCauDungMCQ(correctMCQ);
-    setSoCauDungShort(correctShort);
     setMangCauSai(uniqueWrongSkills);
-    setIsSubmitted(true);
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    // Payload gửi Webhook GAS
-    const thoiGianLamGiay = 45 * 60 - timeLeft;
-    const thoiGianLamPhut = Math.max(1, Math.round(thoiGianLamGiay / 60));
+    const thoiGianLamPhut = Math.max(1, Math.round((45 * 60 - timeLeft) / 60));
 
     const chiTietPhanHoiObj = {
-      hoc_sinh: ten,
-      ma_hs: ma,
+      ho_ten: ten,
+      ma_so: ma,
       lop: lop,
-      bai_thi: 'ĐỀ KIỂM TRA ĐỊNH KỲ TOÁN 10 - BPT & HỆ BPT BẬC NHẤT HAI ẨN [ĐỀ B]',
-      diem: finalScore,
-      so_cau_dung_mcq: `${correctMCQ}/${MCQ_QUESTIONS_BPT_DE_B.length}`,
-      so_cau_dung_short: `${correctShort}/${SHORTANS_QUESTIONS_BPT_DE_B.length}`,
+      de_thi: `${EXAM_TITLE} - ${EXAM_SUBTITLE}`,
+      diem_so: finalScore,
+      diem_phan_1: p1Score,
+      diem_phan_2: p2Score,
+      diem_phan_3: p3Score,
+      so_cau_dung_mcq: `${correctMCQ}/${RAW_MCQ_QUESTIONS.length}`,
       thoi_gian_lam_phut: thoiGianLamPhut,
       thoi_gian_nop: new Date().toLocaleString('vi-VN'),
       ky_nang_sai: uniqueWrongSkills,
-      dap_an_mcq: mcqAnswers,
+      dap_an_mcq_selected: mcqAnswers,
+      dap_an_tf: tfAnswers,
       dap_an_tu_luan: shortAnswers,
     };
 
@@ -533,7 +547,7 @@ export default function Toan10BptDeBPage() {
       action: 'submit_test',
       data: {
         Student_ID: ma,
-        Task_ID: 'KIEM_TRA_BPT_TOAN_10_DE_B',
+        Task_ID: 'KIEM_TRA_TOAN_10_BPT_DE_B_45P',
         Diem_So: finalScore,
         Thoi_Gian_Lam: thoiGianLamPhut,
         Chi_Tiet_Phan_Hoi: JSON.stringify(chiTietPhanHoiObj),
@@ -544,82 +558,142 @@ export default function Toan10BptDeBPage() {
     try {
       await fetch(GOOGLE_APP_SCRIPT_URL, {
         method: 'POST',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'text/plain;charset=utf-8',
-        },
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(webhookGASPayload),
+        mode: 'no-cors',
       });
     } catch (err) {
       console.warn('Lỗi gửi Webhook Google Apps Script:', err);
     }
 
-    // 2. Fetch gửi dự phòng sang n8n Webhook
+    // 2. Fetch gửi Webhook n8n
     try {
       await fetch(N8N_WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          hoc_sinh: ten,
-          ma_hs: ma,
-          lop: lop,
-          bai_thi: 'ĐỀ KIỂM TRA TOÁN 10 - BPT [ĐỀ B]',
-          diem: finalScore,
-          ky_nang_sai: uniqueWrongSkills,
-          thoi_gian_nop: new Date().toLocaleString('vi-VN'),
+          ...webhookGASPayload,
+          full_details: chiTietPhanHoiObj,
         }),
       });
     } catch (err) {
       console.warn('Lỗi gửi Webhook n8n:', err);
-    } finally {
-      setIsSubmitting(false);
     }
+
+    setIsSubmitted(true);
+    setIsSubmitting(false);
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Làm lại bài thi
   const handleReset = () => {
-    if (window.confirm('Bạn có chắc chắn muốn làm lại bài thi từ đầu?')) {
-      setMcqAnswers({});
-      setShortAnswers({});
-      setIsSubmitted(false);
-      setDiemSo(0);
-      setMangCauSai([]);
-      setSoCauDungMCQ(0);
-      setSoCauDungShort(0);
-      setTimeLeft(45 * 60);
-      // Xáo trộn lượt mới bằng thuật toán Fisher-Yates khi làm lại
-      setShuffledMCQQuestions(
-        MCQ_QUESTIONS_BPT_DE_B.map((q) => ({
-          ...q,
-          options: shuffleOptions(q.options),
-        }))
-      );
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    if (!window.confirm('Bạn có chắc chắn muốn làm lại bài thi từ đầu?')) return;
+    setMcqAnswers({});
+    setTfAnswers({});
+    setShortAnswers({});
+    setIsSubmitted(false);
+    setTimeLeft(45 * 60);
+    setDiemSo(0);
+    setDiemPhan1(0);
+    setDiemPhan2(0);
+    setDiemPhan3(0);
+    setSoCauDungMCQ(0);
+    setMangCauSai([]);
+
+    const reshuffled = RAW_MCQ_QUESTIONS.map((q) => ({
+      ...q,
+      options: shuffleOptions(q.options),
+    }));
+    setShuffledMCQQuestions(reshuffled);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 py-8 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="max-w-4xl mx-auto space-y-6">
-
-        {/* HEADER BÀI THI */}
-        <header className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
-          <div className="border-b border-slate-100 pb-5 text-center">
-            <span className="inline-block px-3 py-1 bg-indigo-50 text-indigo-800 text-xs font-semibold uppercase tracking-wider rounded-full mb-2">
-              Hệ thống khảo sát trực tuyến Integra &bull; Toán 10
+    <div className="min-h-screen bg-slate-50 text-slate-800 pb-20 selection:bg-sky-500 selection:text-white">
+      {/* HEADER CỐ ĐỊNH */}
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm transition-all">
+        <div className="max-w-5xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-indigo-600 text-white font-extrabold flex items-center justify-center text-lg shadow-md shadow-sky-500/20">
+              10
             </span>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 leading-tight">
-              ĐỀ KIỂM TRA ĐÁNH GIÁ ĐỊNH KỲ MÔN TOÁN LỚP 10 -- ĐỀ B
-            </h1>
-            <p className="text-sm sm:text-base text-slate-600 font-medium mt-1">
-              Chủ đề: Bất phương trình và Hệ bất phương trình bậc nhất hai ẩn
-            </p>
+            <div>
+              <h1 className="font-extrabold text-base sm:text-lg text-slate-900 tracking-tight leading-snug">
+                {EXAM_TITLE}
+              </h1>
+              <p className="text-xs text-slate-500 font-medium">
+                {EXAM_SUBTITLE} • {EXAM_TIME_NOTE}
+              </p>
+            </div>
           </div>
 
-          {/* THANH ĐỒNG HỒ & THÔNG TIN HỌC SINH */}
-          <div className="mt-6 grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
+          {/* ĐỒNG HỒ & NÚT NỘP BÀI */}
+          <div className="flex items-center gap-3">
+            <div
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl border font-mono font-bold text-base transition-all ${
+                timeLeft < 300
+                  ? 'bg-rose-50 border-rose-300 text-rose-600 animate-bounce'
+                  : 'bg-sky-50 border-sky-200 text-sky-800'
+              }`}
+            >
+              <svg
+                className="w-5 h-5 text-current animate-spin"
+                style={{ animationDuration: '4s' }}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span>{formatTime(timeLeft)}</span>
+            </div>
+
+            {!isSubmitted && (
+              <button
+                id="btn-nop-bai"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="px-5 py-2.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 active:scale-95 text-white font-bold text-sm rounded-xl shadow-md transition disabled:opacity-50 cursor-pointer"
+              >
+                {isSubmitting ? 'Đang nộp...' : 'Nộp bài thi'}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* THANH TIẾN ĐỘ */}
+        <div className="w-full bg-slate-100 h-1.5">
+          <div
+            className="bg-gradient-to-r from-sky-500 to-indigo-600 h-1.5 transition-all duration-300"
+            style={{ width: `${progressPercent}%` }}
+          ></div>
+        </div>
+      </header>
+
+      <div className="max-w-5xl mx-auto px-4 mt-6 space-y-6">
+        {/* THÔNG TIN THÍ SINH */}
+        <section className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+          <h2 className="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
+            <svg className="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
+            </svg>
+            Thông tin thí sinh dự thi
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label htmlFor="input-ten" className="block text-xs font-semibold text-slate-600 mb-1">
-                Họ và tên học sinh <span className="text-rose-500">*</span>
+                Họ và tên thí sinh <span className="text-rose-500">*</span>
               </label>
               <input
                 id="input-ten"
@@ -627,13 +701,13 @@ export default function Toan10BptDeBPage() {
                 disabled={isSubmitted}
                 value={tenHocSinh}
                 onChange={(e) => setTenHocSinh(e.target.value)}
-                placeholder="Nguyễn Văn A"
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 disabled:bg-slate-100"
+                placeholder="VD: Nguyễn Văn An"
+                className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 disabled:bg-slate-100"
               />
             </div>
             <div>
               <label htmlFor="input-ma-hs" className="block text-xs font-semibold text-slate-600 mb-1">
-                Mã học sinh
+                Mã học sinh / SBD
               </label>
               <input
                 id="input-ma-hs"
@@ -641,13 +715,13 @@ export default function Toan10BptDeBPage() {
                 disabled={isSubmitted}
                 value={maHocSinh}
                 onChange={(e) => setMaHocSinh(e.target.value)}
-                placeholder="HS10-BPT01"
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 disabled:bg-slate-100"
+                placeholder="VD: HS10-BPT-001"
+                className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 disabled:bg-slate-100"
               />
             </div>
             <div>
               <label htmlFor="input-lop" className="block text-xs font-semibold text-slate-600 mb-1">
-                Lớp / Nhóm
+                Lớp / Khối học
               </label>
               <input
                 id="input-lop"
@@ -655,355 +729,525 @@ export default function Toan10BptDeBPage() {
                 disabled={isSubmitted}
                 value={lopNhom}
                 onChange={(e) => setLopNhom(e.target.value)}
-                placeholder="10A1"
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 disabled:bg-slate-100"
-              />
-            </div>
-            <div className="flex flex-col items-center justify-center p-3 bg-indigo-50/80 border border-indigo-200 rounded-xl">
-              <span className="text-xs font-medium text-indigo-800">Thời gian còn lại</span>
-              <span
-                className={`text-xl font-bold font-mono ${
-                  timeLeft < 300 ? 'text-rose-600 animate-pulse' : 'text-indigo-950'
-                }`}
-              >
-                {formatTime(timeLeft)}
-              </span>
-            </div>
-          </div>
-
-          {/* THANH TIẾN ĐỘ */}
-          <div className="mt-6 pt-4 border-t border-slate-100">
-            <div className="flex justify-between items-center text-xs text-slate-500 mb-1">
-              <span>Tiến độ hoàn thành: {totalAnswered}/{totalQuestions} câu</span>
-              <span>{progressPercent}%</span>
-            </div>
-            <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-indigo-600 transition-all duration-300 rounded-full"
-                style={{ width: `${progressPercent}%` }}
+                placeholder="VD: 10A1"
+                className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 disabled:bg-slate-100"
               />
             </div>
           </div>
-        </header>
+        </section>
 
-        {/* KẾT QUẢ SAU KHI NỘP BÀI */}
+        {/* BẢNG KẾT QUẢ KHI ĐÃ NỘP BÀI */}
         {isSubmitted && (
-          <section className="bg-white rounded-2xl shadow-md border-2 border-indigo-600 p-6 sm:p-8 animate-fade-in">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-100 pb-5">
-              <div>
-                <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-full">
-                  Đã hoàn thành &bull; Chấm điểm tự động
+          <section className="bg-gradient-to-r from-sky-900 to-indigo-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="space-y-2 text-center md:text-left">
+                <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-sky-400/20 text-sky-200 border border-sky-400/30">
+                  KẾT QUẢ BÀI LÀM CHÍNH THỨC
                 </span>
-                <h2 className="text-2xl font-bold text-slate-900 mt-2">
-                  Kết quả bài thi: {tenHocSinh || 'Học sinh'} ({lopNhom || 'Lớp 10'})
-                </h2>
-                <p className="text-sm text-slate-500 mt-1">
-                  Đúng {soCauDungMCQ}/14 câu Trắc nghiệm &bull; Đúng {soCauDungShort}/2 câu Tự luận
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-white">
+                  {tenHocSinh.trim() || 'Học sinh ẩn danh'}
+                </h3>
+                <p className="text-sm text-sky-200">
+                  Mã số: <span className="font-mono font-bold text-white">{maHocSinh || 'HS10-BPT-B'}</span> • Lớp: <span className="font-semibold text-white">{lopNhom || '10'}</span>
                 </p>
+                <div className="pt-2 flex flex-wrap gap-4 text-xs text-sky-100">
+                  <span>Phần I: <strong>{diemPhan1.toFixed(2)}/3.0đ</strong> ({soCauDungMCQ}/12 câu đúng)</span>
+                  <span>Phần II: <strong>{diemPhan2.toFixed(1)}/4.0đ</strong></span>
+                  <span>Phần III: <strong>{diemPhan3.toFixed(1)}/3.0đ</strong></span>
+                  <span>Thời gian làm bài: <strong>{Math.max(1, Math.round((45 * 60 - timeLeft) / 60))} phút</strong></span>
+                </div>
               </div>
-              <div className="text-center sm:text-right bg-gradient-to-br from-indigo-50 to-blue-50 p-4 rounded-xl border border-indigo-200 min-w-[140px]">
-                <span className="text-xs uppercase text-slate-500 font-semibold block">Điểm số</span>
-                <span className="text-4xl font-extrabold text-indigo-700">{diemSo}</span>
-                <span className="text-sm font-semibold text-slate-400"> / 10.0</span>
+
+              {/* KHỐI ĐIỂM TỔNG KẾT */}
+              <div className="flex flex-col items-center justify-center bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-8 py-5 min-w-[180px] shadow-inner text-center">
+                <span className="text-xs uppercase font-semibold text-sky-200 tracking-wider">
+                  Tổng điểm đạt được
+                </span>
+                <div className="text-5xl sm:text-6xl font-black text-amber-300 my-1">
+                  {diemSo.toFixed(1)}
+                </div>
+                <span className="text-xs text-sky-200 font-medium">Thang điểm 10.0</span>
               </div>
             </div>
 
-            {/* PHÂN TÍCH LỖI SAI & KỸ NĂNG CẦN CẢI THIỆN */}
-            <div className="mt-5">
-              <h3 className="text-sm font-bold text-slate-800 mb-2">
-                Các chuyên đề / kỹ năng cần ôn luyện thêm:
-              </h3>
-              {mangCauSai.length === 0 ? (
-                <div className="p-3 bg-emerald-50 text-emerald-800 rounded-xl text-sm font-medium">
-                  🎉 Xuất sắc! Bạn đã trả lời đúng tất cả các kỹ năng trong đề thi.
-                </div>
-              ) : (
-                <div className="flex flex-wrap gap-2">
+            {/* PHÂN TÍCH KỸ NĂNG CẦN CẢI THIỆN */}
+            {mangCauSai.length > 0 && (
+              <div className="mt-6 pt-6 border-t border-white/10">
+                <h4 className="text-sm font-bold text-amber-300 flex items-center gap-2 mb-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                  </svg>
+                  Các chuyên đề / dạng toán cần ôn luyện thêm:
+                </h4>
+                <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-slate-200">
                   {mangCauSai.map((skill, idx) => (
-                    <span
-                      key={idx}
-                      className="px-3 py-1.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-lg flex items-center gap-1.5"
-                    >
-                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path
-                          fillRule="evenodd"
-                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      {skill}
-                    </span>
+                    <li key={idx} className="flex items-start gap-1.5 bg-white/5 rounded-lg px-2.5 py-1.5 border border-white/10">
+                      <span className="text-amber-400 font-bold">•</span>
+                      <span>{skill}</span>
+                    </li>
                   ))}
-                </div>
-              )}
-            </div>
+                </ul>
+              </div>
+            )}
 
-            <div className="mt-6 flex justify-end">
+            <div className="mt-6 flex flex-wrap gap-3 justify-end">
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold transition border border-white/20 cursor-pointer"
+              >
+                🖨️ In bài làm / Lưu PDF
+              </button>
               <button
                 type="button"
                 onClick={handleReset}
-                className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition"
+                className="px-4 py-2 bg-amber-400 hover:bg-amber-500 text-slate-900 rounded-xl text-xs font-bold transition shadow cursor-pointer"
               >
-                Làm lại bài thi
+                🔄 Làm lại bài thi
               </button>
             </div>
           </section>
         )}
 
-        {/* PHẦN I: TRẮC NGHIỆM */}
-        <section className="space-y-4">
-          <div className="bg-indigo-800 text-white px-5 py-3 rounded-xl flex items-center justify-between shadow-sm">
-            <h2 className="font-bold text-base sm:text-lg">
-              I. PHẦN TRẮC NGHIỆM (7,0 ĐIỂM – 14 CÂU, 0,5 Đ/CÂU)
+        {/* ======================================================== */}
+        {/* PHẦN I: TRẮC NGHIỆM NHIỀU LỰA CHỌN (12 CÂU - 3,0 ĐIỂM)   */}
+        {/* ======================================================== */}
+        <section className="space-y-5">
+          <div className="bg-sky-900 text-white px-5 py-3 rounded-2xl flex flex-wrap items-center justify-between gap-2 shadow-sm">
+            <h2 className="text-base font-bold tracking-wide">
+              PHẦN I. CÂU HỎI TRẮC NGHIỆM NHIỀU LỰA CHỌN (12 CÂU - 3,0 ĐIỂM)
             </h2>
-            <span className="text-xs bg-white/20 px-2.5 py-1 rounded-md font-medium">
-              14 Câu hỏi
+            <span className="text-xs bg-sky-800/80 px-3 py-1 rounded-full text-sky-200 font-medium">
+              0,25 điểm / câu • 4 lựa chọn (1 đáp án đúng duy nhất)
             </span>
           </div>
 
-          {shuffledMCQQuestions.map((q) => {
-            const studentAnswer = mcqAnswers[q.id];
-            const isCorrect = studentAnswer === q.correct;
-            return (
-              <div
-                key={q.id}
-                className={`bg-white rounded-xl p-5 sm:p-6 border transition shadow-sm ${
-                  isSubmitted
-                    ? isCorrect
-                      ? 'border-emerald-300 bg-emerald-50/20'
-                      : 'border-rose-300 bg-rose-50/20'
-                    : 'border-slate-200 hover:border-slate-300'
-                }`}
-              >
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-1 bg-indigo-100 text-indigo-900 text-xs font-bold rounded-md">
-                      Câu {q.number}
-                    </span>
-                    <span className="text-xs text-slate-500 font-medium">
-                      [Kỹ năng: {q.skill}]
-                    </span>
-                  </div>
-                  <span className="text-xs font-semibold text-slate-400">0,5 đ</span>
-                </div>
+          <div className="space-y-4">
+            {shuffledMCQQuestions.map((q) => {
+              const selectedIndex = mcqAnswers[q.id];
+              const chosenOption = selectedIndex !== undefined ? q.options[selectedIndex] : null;
+              const isStudentCorrect = chosenOption ? chosenOption.isCorrect === true : false;
 
+              const correctOptionIndex = q.options.findIndex((opt) => opt.isCorrect === true);
+              const dynamicCorrectLetter = ['A', 'B', 'C', 'D'][correctOptionIndex] || 'A';
+
+              return (
                 <div
-                  className="text-slate-900 text-sm sm:text-base leading-relaxed mb-4"
-                  dangerouslySetInnerHTML={{ __html: q.text }}
-                />
+                  key={q.id}
+                  id={`cau-${q.number}`}
+                  className={`bg-white rounded-2xl p-5 border shadow-sm transition-all ${
+                    isSubmitted
+                      ? isStudentCorrect
+                        ? 'border-emerald-300 bg-emerald-50/20'
+                        : selectedIndex !== undefined
+                        ? 'border-rose-300 bg-rose-50/20'
+                        : 'border-amber-300 bg-amber-50/20'
+                      : selectedIndex !== undefined
+                      ? 'border-sky-300 shadow-sky-50'
+                      : 'border-slate-200'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-sky-100 text-sky-800 font-bold text-sm">
+                        {q.number}
+                      </span>
+                      <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-100 text-slate-600">
+                        {q.points} điểm
+                      </span>
+                      <span className="text-xs text-slate-400 hidden sm:inline">
+                        • {q.skill}
+                      </span>
+                    </div>
 
-                {/* 4 PHƯƠNG ÁN XÁO TRỘN FISHER-YATES */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {q.options.map((opt, optIndex) => {
-                    const displayLabel = (['A', 'B', 'C', 'D'] as const)[optIndex];
-                    const isSelected = studentAnswer === opt.originalKey;
-                    const isThisCorrect = opt.originalKey === q.correct;
-
-                    let optionStyle = 'border-slate-200 hover:bg-slate-50 text-slate-800';
-
-                    if (isSubmitted) {
-                      if (isThisCorrect) {
-                        optionStyle =
-                          'border-emerald-500 bg-emerald-50 font-semibold text-emerald-900 ring-2 ring-emerald-500/20';
-                      } else if (isSelected && !isThisCorrect) {
-                        optionStyle =
-                          'border-rose-500 bg-rose-50 text-rose-900 ring-2 ring-rose-500/20 line-through';
-                      } else {
-                        optionStyle = 'border-slate-100 opacity-60 text-slate-400';
-                      }
-                    } else if (isSelected) {
-                      optionStyle =
-                        'border-indigo-600 bg-indigo-50/80 text-indigo-950 font-semibold ring-2 ring-indigo-500/20';
-                    }
-
-                    return (
-                      <button
-                        key={opt.originalKey}
-                        type="button"
-                        disabled={isSubmitted}
-                        onClick={() => {
-                          if (isSubmitted) return;
-                          setMcqAnswers((prev) => ({ ...prev, [q.id]: opt.originalKey }));
-                        }}
-                        className={`text-left px-4 py-3 rounded-lg border text-sm transition flex items-start gap-3 ${optionStyle}`}
+                    {isSubmitted && (
+                      <span
+                        className={`text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 ${
+                          isStudentCorrect
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                            : 'bg-rose-100 text-rose-800 border border-rose-300'
+                        }`}
                       >
-                        <span
-                          className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                            isSelected
-                              ? 'bg-indigo-600 text-white'
-                              : isSubmitted && isThisCorrect
-                              ? 'bg-emerald-600 text-white'
-                              : 'bg-slate-200 text-slate-700'
+                        {isStudentCorrect ? '✓ Đúng (+0.25đ)' : '✕ Sai (+0.0đ)'}
+                      </span>
+                    )}
+                  </div>
+
+                  <MathContent
+                    content={q.text}
+                    className="text-slate-800 font-medium text-sm sm:text-base leading-relaxed mb-4"
+                  />
+
+                  {/* 4 phương án xáo trộn */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {q.options.map((opt, optIndex) => {
+                      const displayLabel = ['A', 'B', 'C', 'D'][optIndex];
+                      const isOptionSelected = selectedIndex === optIndex;
+                      const isOptionCorrect = opt.isCorrect === true;
+
+                      let btnStyle = 'border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300';
+                      if (!isSubmitted) {
+                        if (isOptionSelected) {
+                          btnStyle = 'border-sky-500 bg-sky-50 text-sky-900 ring-2 ring-sky-200 font-semibold';
+                        }
+                      } else {
+                        if (isOptionCorrect) {
+                          btnStyle = 'border-emerald-500 bg-emerald-50 text-emerald-900 font-bold ring-2 ring-emerald-300';
+                        } else if (isOptionSelected && !isOptionCorrect) {
+                          btnStyle = 'border-rose-500 bg-rose-50 text-rose-900 line-through ring-2 ring-rose-200';
+                        } else {
+                          btnStyle = 'border-slate-200 bg-slate-50/50 opacity-60 text-slate-500';
+                        }
+                      }
+
+                      return (
+                        <button
+                          key={optIndex}
+                          type="button"
+                          disabled={isSubmitted}
+                          onClick={() =>
+                            setMcqAnswers((prev) => ({
+                              ...prev,
+                              [q.id]: optIndex,
+                            }))
+                          }
+                          className={`w-full text-left p-3 rounded-xl border flex items-center gap-3 transition cursor-pointer disabled:cursor-default ${btnStyle}`}
+                        >
+                          <span
+                            className={`inline-flex items-center justify-center w-7 h-7 rounded-lg text-xs font-bold transition shrink-0 ${
+                              isOptionSelected
+                                ? 'bg-sky-600 text-white'
+                                : 'bg-slate-100 text-slate-700'
+                            }`}
+                          >
+                            {displayLabel}
+                          </span>
+                          <MathContent content={opt.text} className="text-sm flex-1" />
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Lời giải chi tiết */}
+                  {isSubmitted && (
+                    <div className="mt-4 pt-4 border-t border-slate-100 text-xs sm:text-sm bg-slate-50/80 p-3.5 rounded-xl text-slate-700 overflow-x-auto whitespace-pre-wrap break-words">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-2.5 py-1 rounded-md text-xs">
+                          ✓ Đáp án đúng: {dynamicCorrectLetter}
+                        </span>
+                        <span className="font-semibold text-slate-800 flex items-center gap-1">
+                          <span className="text-sky-600">💡</span> Lời giải chi tiết:
+                        </span>
+                      </div>
+                      <MathContent
+                        content={q.explanation}
+                        className="overflow-x-auto whitespace-pre-wrap break-words leading-relaxed"
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ======================================================== */}
+        {/* PHẦN II: TRẮC NGHIỆM ĐÚNG/SAI (2 BÀI - 4,0 ĐIỂM)          */}
+        {/* ======================================================== */}
+        <section className="space-y-5">
+          <div className="bg-emerald-900 text-white px-5 py-3 rounded-2xl flex flex-wrap items-center justify-between gap-2 shadow-sm">
+            <h2 className="text-base font-bold tracking-wide">
+              PHẦN II. CÂU HỎI TRẮC NGHIỆM ĐÚNG/SAI (2 BÀI - 4,0 ĐIỂM)
+            </h2>
+            <span className="text-xs bg-emerald-800/80 px-3 py-1 rounded-full text-emerald-200 font-medium">
+              Tối đa 2,0 điểm / bài • 1 ý: 0.2đ | 2 ý: 0.5đ | 3 ý: 1.0đ | 4 ý: 2.0đ
+            </span>
+          </div>
+
+          <div className="space-y-4">
+            {RAW_TF_QUESTIONS.map((q) => {
+              const currentSubs = tfAnswers[q.id] || {};
+              let correctCount = 0;
+              q.items.forEach((item) => {
+                if (currentSubs[item.key] === item.correct) {
+                  correctCount += 1;
+                }
+              });
+              const earnedPoints = calculateTFPoints(correctCount);
+
+              return (
+                <div
+                  key={q.id}
+                  id={`cau-tf-${q.number}`}
+                  className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm transition-all"
+                >
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-xl bg-emerald-100 text-emerald-800 font-bold text-xs">
+                        Bài {q.number} (Đúng / Sai)
+                      </span>
+                      <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-100 text-slate-600">
+                        2,0 điểm
+                      </span>
+                      <span className="text-xs text-slate-400 hidden sm:inline">
+                        • {q.skill}
+                      </span>
+                    </div>
+
+                    {isSubmitted && (
+                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        {correctCount}/4 ý đúng (+{earnedPoints}đ)
+                      </span>
+                    )}
+                  </div>
+
+                  <MathContent
+                    content={q.text}
+                    className="text-slate-800 font-medium text-sm sm:text-base leading-relaxed mb-4"
+                  />
+
+                  {/* BẢNG 4 Ý a, b, c, d */}
+                  <div className="space-y-3">
+                    {q.items.map((item) => {
+                      const userChoice = currentSubs[item.key];
+                      const isItemCorrect = isSubmitted ? userChoice === item.correct : false;
+
+                      return (
+                        <div
+                          key={item.key}
+                          className={`p-3.5 rounded-xl border transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                            isSubmitted
+                              ? isItemCorrect
+                                ? 'bg-emerald-50/40 border-emerald-300'
+                                : 'bg-rose-50/40 border-rose-300'
+                              : 'bg-slate-50/50 border-slate-200'
                           }`}
                         >
-                          {displayLabel}
-                        </span>
-                        <div
-                          className="flex-1 overflow-x-auto"
-                          dangerouslySetInnerHTML={{ __html: opt.text }}
-                        />
-                      </button>
-                    );
-                  })}
-                </div>
+                          <div className="flex items-start gap-2.5 flex-1">
+                            <span className="font-bold text-slate-700 uppercase shrink-0 text-sm mt-0.5">
+                              {item.key})
+                            </span>
+                            <MathContent content={item.text} className="text-sm text-slate-800 flex-1" />
+                          </div>
 
-                {isSubmitted && (
-                  <div className="mt-4 pt-4 border-t border-slate-100 bg-slate-50 p-4 rounded-lg text-sm text-slate-700">
-                    <div className="flex items-center gap-1.5 font-bold text-indigo-900 mb-1">
-                      <svg className="w-4 h-4 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" />
-                      </svg>
-                      Hướng dẫn giải chi tiết:
-                    </div>
-                    <div className="leading-relaxed" dangerouslySetInnerHTML={{ __html: q.explanation }} />
+                          <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                            <button
+                              type="button"
+                              disabled={isSubmitted}
+                              onClick={() =>
+                                setTfAnswers((prev) => ({
+                                  ...prev,
+                                  [q.id]: {
+                                    ...(prev[q.id] || {}),
+                                    [item.key]: true,
+                                  },
+                                }))
+                              }
+                              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border cursor-pointer disabled:cursor-default ${
+                                userChoice === true
+                                  ? isSubmitted
+                                    ? item.correct === true
+                                      ? 'bg-emerald-600 text-white border-emerald-600 ring-2 ring-emerald-300'
+                                      : 'bg-rose-600 text-white border-rose-600 ring-2 ring-rose-200'
+                                    : 'bg-sky-600 text-white border-sky-600'
+                                  : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                              }`}
+                            >
+                              Đúng
+                            </button>
+
+                            <button
+                              type="button"
+                              disabled={isSubmitted}
+                              onClick={() =>
+                                setTfAnswers((prev) => ({
+                                  ...prev,
+                                  [q.id]: {
+                                    ...(prev[q.id] || {}),
+                                    [item.key]: false,
+                                  },
+                                }))
+                              }
+                              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border cursor-pointer disabled:cursor-default ${
+                                userChoice === false
+                                  ? isSubmitted
+                                    ? item.correct === false
+                                      ? 'bg-emerald-600 text-white border-emerald-600 ring-2 ring-emerald-300'
+                                      : 'bg-rose-600 text-white border-rose-600 ring-2 ring-rose-200'
+                                    : 'bg-sky-600 text-white border-sky-600'
+                                  : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                              }`}
+                            >
+                              Sai
+                            </button>
+
+                            {isSubmitted && (
+                              <span className="text-xs font-bold ml-1">
+                                {item.correct ? (
+                                  <span className="text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">Chuẩn: Đúng</span>
+                                ) : (
+                                  <span className="text-rose-700 bg-rose-100 px-2 py-0.5 rounded">Chuẩn: Sai</span>
+                                )}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                )}
-              </div>
-            );
-          })}
+
+                  {/* Lời giải chi tiết phần Đúng/Sai */}
+                  {isSubmitted && (
+                    <div className="mt-4 pt-4 border-t border-slate-100 text-xs sm:text-sm bg-slate-50/80 p-3.5 rounded-xl text-slate-700 overflow-x-auto whitespace-pre-wrap break-words">
+                      <div className="font-semibold text-slate-800 flex items-center gap-1 mb-2">
+                        <span className="text-emerald-600">💡</span> Lời giải chi tiết:
+                      </div>
+                      <MathContent
+                        content={q.explanation}
+                        className="overflow-x-auto whitespace-pre-wrap break-words leading-relaxed"
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </section>
 
-        {/* PHẦN II: TỰ LUẬN */}
-        <section className="space-y-4">
-          <div className="bg-slate-800 text-white px-5 py-3 rounded-xl flex items-center justify-between shadow-sm">
-            <h2 className="font-bold text-base sm:text-lg">
-              II. PHẦN TỰ LUẬN (3,0 ĐIỂM – 2 CÂU, 1,5 Đ/CÂU)
+        {/* ======================================================== */}
+        {/* PHẦN III: TRẮC NGHIỆM TRẢ LỜI NGẮN (3 CÂU - 3,0 ĐIỂM)     */}
+        {/* ======================================================== */}
+        <section className="space-y-5">
+          <div className="bg-indigo-900 text-white px-5 py-3 rounded-2xl flex flex-wrap items-center justify-between gap-2 shadow-sm">
+            <h2 className="text-base font-bold tracking-wide">
+              PHẦN III. CÂU HỎI TRẮC NGHIỆM TRẢ LỜI NGẮN (3 CÂU - 3,0 ĐIỂM)
             </h2>
-            <span className="text-xs bg-white/20 px-2.5 py-1 rounded-md font-medium">
-              2 Câu hỏi
+            <span className="text-xs bg-indigo-800/80 px-3 py-1 rounded-full text-indigo-200 font-medium">
+              1,0 điểm / câu • Điền kết quả trực tiếp & Chấm điểm tự động
             </span>
           </div>
 
-          {SHORTANS_QUESTIONS_BPT_DE_B.map((q) => {
-            const studentText = shortAnswers[q.id] || '';
-            const isCorrect = q.validator(studentText);
-            return (
-              <div
-                key={q.id}
-                className={`bg-white rounded-xl p-5 sm:p-6 border transition shadow-sm ${
-                  isSubmitted
-                    ? isCorrect
-                      ? 'border-emerald-300 bg-emerald-50/20'
-                      : 'border-rose-300 bg-rose-50/20'
-                    : 'border-slate-200 hover:border-slate-300'
-                }`}
-              >
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-1 bg-slate-100 text-slate-800 text-xs font-bold rounded-md">
-                      Câu {q.number} (Tự luận)
-                    </span>
-                    <span className="text-xs text-slate-500 font-medium">
-                      [Kỹ năng: {q.skill}]
-                    </span>
-                  </div>
-                  <span className="text-xs font-semibold text-slate-400">1,5 đ</span>
-                </div>
+          <div className="space-y-4">
+            {RAW_SHORTANS_QUESTIONS.map((q) => {
+              const currentVal = shortAnswers[q.id] || '';
+              const isCorrect = isSubmitted ? q.validator(currentVal) : false;
 
+              return (
                 <div
-                  className="text-slate-900 text-sm sm:text-base leading-relaxed mb-4"
-                  dangerouslySetInnerHTML={{ __html: q.text }}
-                />
-
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-slate-600">
-                    Nhập đáp án tóm tắt hoặc kết quả của bạn:
-                  </label>
-                  <input
-                    type="text"
-                    disabled={isSubmitted}
-                    value={studentText}
-                    onChange={(e) =>
-                      setShortAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))
-                    }
-                    placeholder={q.placeholder}
-                    className="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 disabled:bg-slate-100"
-                  />
-                </div>
-
-                {isSubmitted && (
-                  <div className="mt-4 pt-4 border-t border-slate-100 bg-slate-50 p-4 rounded-lg text-sm text-slate-700">
-                    <div className="mb-2">
-                      <span className="text-xs font-bold uppercase text-emerald-800">
-                        Đáp số chuẩn:
+                  key={q.id}
+                  id={`cau-sa-${q.number}`}
+                  className={`bg-white rounded-2xl p-5 border shadow-sm transition-all ${
+                    isSubmitted
+                      ? isCorrect
+                        ? 'border-emerald-300 bg-emerald-50/20'
+                        : currentVal.trim()
+                        ? 'border-rose-300 bg-rose-50/20'
+                        : 'border-amber-300 bg-amber-50/20'
+                      : currentVal.trim()
+                      ? 'border-indigo-300 shadow-indigo-50'
+                      : 'border-slate-200'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-xl bg-indigo-100 text-indigo-800 font-bold text-xs">
+                        Câu {q.number}
                       </span>
-                      <p className="font-semibold text-slate-900 mt-0.5">{q.correctDisplay}</p>
+                      <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-100 text-slate-600">
+                        {q.points} điểm
+                      </span>
+                      <span className="text-xs text-slate-400 hidden sm:inline">
+                        • {q.skill}
+                      </span>
                     </div>
-                    <div className="flex items-center gap-1.5 font-bold text-indigo-900 mb-1">
-                      <svg className="w-4 h-4 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" />
-                      </svg>
-                      Thang điểm & Lời giải chi tiết:
-                    </div>
-                    <div className="leading-relaxed" dangerouslySetInnerHTML={{ __html: q.explanation }} />
+
+                    {isSubmitted && (
+                      <span
+                        className={`text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 ${
+                          isCorrect
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                            : 'bg-rose-100 text-rose-800 border border-rose-300'
+                        }`}
+                      >
+                        {isCorrect ? '✓ Đúng (+1.0đ)' : '✕ Chưa chính xác (+0.0đ)'}
+                      </span>
+                    )}
                   </div>
-                )}
-              </div>
-            );
-          })}
+
+                  <MathContent
+                    content={q.text}
+                    className="text-slate-800 font-medium text-sm sm:text-base leading-relaxed mb-4"
+                  />
+
+                  {/* Ô nhập câu trả lời */}
+                  <div className="space-y-2">
+                    <label htmlFor={`input-${q.id}`} className="block text-xs font-bold text-slate-700">
+                      Kết quả / Đáp số của bạn:
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        id={`input-${q.id}`}
+                        type="text"
+                        disabled={isSubmitted}
+                        value={currentVal}
+                        onChange={(e) =>
+                          setShortAnswers((prev) => ({
+                            ...prev,
+                            [q.id]: e.target.value,
+                          }))
+                        }
+                        placeholder={q.placeholder}
+                        className={`w-full max-w-md px-4 py-2.5 text-sm rounded-xl border transition focus:outline-none ${
+                          isSubmitted
+                            ? isCorrect
+                              ? 'border-emerald-500 bg-emerald-50/50 text-emerald-900 font-bold'
+                              : 'border-rose-400 bg-rose-50/50 text-rose-900 line-through'
+                            : 'border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100'
+                        }`}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Lời giải chi tiết */}
+                  {isSubmitted && (
+                    <div className="mt-4 pt-4 border-t border-slate-100 text-xs sm:text-sm bg-slate-50/80 p-4 rounded-xl text-slate-700 overflow-x-auto whitespace-pre-wrap break-words">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <span className="font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-2.5 py-1 rounded-md text-xs">
+                          Đáp số chuẩn: {q.correctDisplay}
+                        </span>
+                        <span className="font-semibold text-slate-800 flex items-center gap-1">
+                          <span className="text-indigo-600">📝</span> Hướng dẫn chấm & lời giải chi tiết:
+                        </span>
+                      </div>
+                      <MathContent
+                        content={q.explanation}
+                        className="overflow-x-auto whitespace-pre-wrap break-words leading-relaxed"
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </section>
 
-        {/* NÚT NỘP BÀI THI */}
-        <div className="pt-4 pb-12 flex flex-col items-center">
-          {!isSubmitted ? (
+        {/* NÚT NỘP BÀI CUỐI TRANG */}
+        {!isSubmitted && (
+          <div className="pt-6 pb-12 flex justify-center">
             <button
-              id="btn-nop-bai"
-              type="button"
-              disabled={isSubmitting}
               onClick={handleSubmit}
-              className="w-full sm:w-80 py-4 px-6 bg-indigo-700 hover:bg-indigo-800 disabled:bg-indigo-400 text-white font-bold text-base rounded-xl shadow-lg hover:shadow-indigo-600/25 transition-all transform active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
+              disabled={isSubmitting}
+              className="px-8 py-3.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 active:scale-95 text-white font-bold text-base rounded-2xl shadow-lg transition disabled:opacity-50 cursor-pointer"
             >
-              {isSubmitting ? (
-                <>
-                  <svg
-                    className="animate-spin h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  Đang chấm điểm & nộp bài...
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  NỘP BÀI THI (45 PHÚT)
-                </>
-              )}
+              {isSubmitting ? 'Đang chấm điểm & lưu...' : 'Hoàn thành và Nộp bài thi'}
             </button>
-          ) : (
-            <div className="flex gap-4">
-              <button
-                type="button"
-                onClick={handleReset}
-                className="py-3 px-6 bg-slate-800 hover:bg-slate-900 text-white font-semibold text-sm rounded-xl shadow transition"
-              >
-                Làm lại bài thi
-              </button>
-              <button
-                type="button"
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="py-3 px-6 bg-white hover:bg-slate-50 text-slate-800 font-semibold text-sm border border-slate-300 rounded-xl shadow-sm transition"
-              >
-                Xem lại điểm số & bài làm
-              </button>
-            </div>
-          )}
-        </div>
-
+          </div>
+        )}
       </div>
     </div>
   );
