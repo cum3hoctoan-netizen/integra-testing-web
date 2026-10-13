@@ -352,7 +352,7 @@ const RAW_SHORTANS_QUESTIONS: QuestionShortAns[] = [
     skill: 'Tìm số tháng tích lũy để đạt giá trị mục tiêu trong niên kim',
     points: 0.7,
     text: 'Chị Lan bắt đầu lập quỹ tiết kiệm du học cho con bằng cách gửi đều đặn $6$ triệu đồng vào ngân hàng vào cuối mỗi tháng, hưởng lãi suất $0{,}5\\%/\\text{tháng}$ (tính theo thể thức lãi kép). Hỏi sau ít nhất bao nhiêu tháng gửi liên tục thì tổng số tiền tích lũy trong quỹ du học của chị Lan sẽ vượt quá $300$ triệu đồng?',
-    placeholder: 'Nhập số tháng (VD: 45)',
+    placeholder: 'Nhập số tháng (VD: 24)',
     correctDisplay: '45',
     explanation:
       'Áp dụng công thức tính tổng số tiền của một niên kim tích lũy gửi cuối mỗi kỳ:<br>$$A = P \\cdot \\dfrac{(1+i)^n - 1}{i}$$<br>Với $P = 6$ triệu đồng, $i = 0{,}5\\% = 0{,}005$, ta cần tìm $n$ nguyên dương nhỏ nhất sao cho $A > 300$:<br>$$6 \\cdot \\dfrac{(1 + 0{,}005)^n - 1}{0{,}005} > 300 \\Leftrightarrow (1{,}005)^n - 1 > \\dfrac{300 \\cdot 0{,}005}{6} = 0{,}25$$<br>$$\\Leftrightarrow (1{,}005)^n > 1{,}25 \\Leftrightarrow n > \\log_{1{,}005}(1{,}25) = \\dfrac{\\ln 1{,}25}{\\ln 1{,}005} \\approx 44{,}74.$$<br>Vì $n$ là số nguyên dương đại diện cho số tháng gửi nên $n = 45$.',
@@ -368,7 +368,7 @@ const RAW_SHORTANS_QUESTIONS: QuestionShortAns[] = [
     skill: 'Vay trả góp nhiều năm với lãi suất biến đổi qua từng năm',
     points: 0.7,
     text: 'Doanh nghiệp A vay ngân hàng $2$ tỉ đồng ($2000$ triệu đồng) để mở rộng sản xuất với thời hạn $3$ năm. Hợp đồng quy định: Mỗi năm doanh nghiệp trả một khoản tiền cố định $M$ (gồm cả gốc và lãi) vào cuối mỗi năm. Lãi suất tính theo thể thức lãi kép với mức lãi suất năm thứ nhất là $8\\%/\\text{năm}$, năm thứ hai là $9\\%/\\text{năm}$, và năm thứ ba là $10\\%/\\text{năm}$. Tính số tiền $M$ mà doanh nghiệp phải trả hàng năm để tất toán hết nợ sau 3 năm (kết quả làm tròn đến hàng đơn vị triệu đồng).',
-    placeholder: 'Nhập số tiền (triệu đồng, VD: 785)',
+    placeholder: 'Nhập số tiền (triệu đồng, VD: 150)',
     correctDisplay: '785',
     explanation:
       'Ký hiệu vốn vay ban đầu $V_0 = 2000$ triệu đồng.<br>• Dư nợ cuối năm 1 sau khi trả khoản $M$: $V_1 = V_0(1 + 0{,}08) - M = 2000 \\cdot 1{,}08 - M = 2160 - M$.<br>• Dư nợ cuối năm 2 sau khi trả khoản $M$: $V_2 = V_1(1 + 0{,}09) - M = (2160 - M) \\cdot 1{,}09 - M = 2354{,}4 - 2{,}09M$.<br>• Dư nợ cuối năm 3 sau khi trả khoản $M$: $V_3 = V_2(1 + 0{,}10) - M = (2354{,}4 - 2{,}09M) \\cdot 1{,}10 - M = 2589{,}84 - 3{,}299M$.<br>Để tất toán toàn bộ khoản nợ sau 3 năm thì $V_3 = 0$:<br>$$2589{,}84 - 3{,}299M = 0 \\Leftrightarrow M = \\dfrac{2589{,}84}{3{,}299} \\approx 785{,}038\\text{ triệu đồng}.$$<br>Làm tròn đến triệu đồng ta được $785$ triệu đồng.',
@@ -384,7 +384,7 @@ const RAW_SHORTANS_QUESTIONS: QuestionShortAns[] = [
     skill: 'So sánh lợi nhuận sau thuế giữa kênh tiết kiệm và quỹ mở',
     points: 0.6,
     text: 'Anh Hoàng có số vốn ban đầu $100$ triệu đồng và muốn đầu tư trong vòng $10$ năm. Anh cân nhắc giữa hai kênh đầu tư:<br>• Kênh A (Gửi tiết kiệm ngân hàng): Lãi suất $6\\%/\\text{năm}$, tính theo lãi kép hàng năm, miễn thuế.<br>• Kênh B (Đầu tư quỹ mở): Lãi suất kỳ vọng $8\\%/\\text{năm}$, tính theo lãi kép hàng năm, nhưng tiền lãi thu được mỗi năm phải chịu thuế thu nhập cá nhân $5\\%$.<br>Hỏi sau $10$ năm, số tiền thu về từ Kênh B nhiều hơn Kênh A bao nhiêu triệu đồng (kết quả làm tròn đến chữ số thập phân thứ nhất)?',
-    placeholder: 'Nhập kết quả (triệu đồng, VD: 28.9 hoặc 28,9)',
+    placeholder: 'Nhập kết quả (VD: 15.5 hoặc 15,5)',
     correctDisplay: '28.9',
     explanation:
       '• **Kênh A**: Lãi suất thực nhận $r_A = 6\\% = 0{,}06$/năm.<br>Số tiền thu được sau 10 năm:<br>$$S_A = 100 \\cdot (1 + 0{,}06)^{10} = 100 \\cdot 1{,}06^{10} \\approx 179{,}085\\text{ triệu đồng}.$$<br>• **Kênh B**: Tiền lãi chịu thuế $5\\%$, do đó lãi suất thực nhận sau thuế mỗi năm là:<br>$$r_B = 8\\% \\cdot (1 - 0{,}05) = 7{,}6\\%/\\text{năm} = 0{,}076.$$<br>Số tiền thu được sau 10 năm:<br>$$S_B = 100 \\cdot (1 + 0{,}076)^{10} = 100 \\cdot 1{,}076^{10} \\approx 208{,}034\\text{ triệu đồng}.$$<br>• Chênh lệch số tiền thu về giữa Kênh B và Kênh A:<br>$$\\Delta S = S_B - S_A = 208{,}034 - 179{,}085 = 28{,}949 \\approx 28{,}9\\text{ triệu đồng}.$$',
